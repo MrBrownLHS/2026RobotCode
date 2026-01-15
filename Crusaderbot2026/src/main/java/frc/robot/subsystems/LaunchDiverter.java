@@ -38,16 +38,16 @@ public class LaunchDiverter extends SubsystemBase {
     
   }
 
-  public RunCommand RunLaunchDivertertoCollect() {
+  public Command LaunchDivertertoCollect() {
     return new RunCommand(() -> {
       m_LaunchDiverter.set(0.75);
-    }, this);
+    }, this).withTimeout(1.0);
   }
 
-  public RunCommand ReverseLaunchDivertertoLaunch() {
+  public Command LaunchDivertertoLaunch() {
     return new RunCommand(() -> {
       m_LaunchDiverter.set(-0.75);
-    }, this);
+    }, this).withTimeout(1.0);
   }
 
   public Command StopLaunchDiverter() {

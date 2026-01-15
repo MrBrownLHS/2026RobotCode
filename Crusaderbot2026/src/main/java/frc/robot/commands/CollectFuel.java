@@ -8,9 +8,10 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import frc.robot.subsystems.Index;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launch;
+import frc.robot.subsystems.LaunchDiverter;
 
 /**
- * Parallel command group that runs the intake, index, and launch collect
+ * Parallel command group that runs the intake, index, launch, divert collect
  * commands simultaneously. Construct this with the subsystem instances so
  * the command group can use their RunCommand factory methods.
  */
@@ -21,20 +22,23 @@ public class CollectFuel extends ParallelCommandGroup {
    * @param index the Index subsystem (provides IndexCollect())
    * @param intake the Intake subsystem (provides IntakeCollect())
    * @param launch the Launch subsystem (provides LaunchCollect())
+   * @param diverter
    */
-  public CollectFuel(Index index, Intake intake, Launch launch) {
+  public CollectFuel(Index index, Intake intake, Launch launch, LaunchDiverter diverter){
     // Add the RunCommand instances returned by each subsystem's "Collect"
     // factory method. These RunCommands already declare the subsystem as a
     // requirement, so the ParallelCommandGroup knows which subsystems are in
     // use.
+  
     addCommands(
+        diverter.LaunchDivertertoCollect(),
         index.IndexCollect(),
         intake.IntakeCollect(),
-        launch.LaunchCollect()
+        launch.LaunchCollect()        
     );
 
     // Optionally declare requirements explicitly (not strictly necessary
     // because the child commands already require these subsystems).
-    addRequirements(index, intake, launch);
+    addRequirements(index, intake, launch, diverter);
   }
 }
