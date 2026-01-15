@@ -1,10 +1,10 @@
-
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -17,53 +17,44 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+public class LaunchDiverter extends SubsystemBase {
+  private final SparkMax m_LaunchDiverter;
+  private SparkMaxConfig launchDiverterMotorConfig;
 
+  /** Creates a new LaunchDiverter. */
+  public LaunchDiverter() {
+    m_LaunchDiverter = new SparkMax(Constants.FuelSystemConstants.LAUNCH_DIVERTER_MOTOR_ID, MotorType.kBrushless);
 
-public class Index extends SubsystemBase {
-  private final SparkMax m_Index;
-  private SparkMaxConfig indexMotorConfig;
- 
-  /** Creates a new Index. */
-  public Index() {
-    m_Index = new SparkMax(Constants.FuelSystemConstants.INDEX_MOTOR_ID, MotorType.kBrushless);
+    launchDiverterMotorConfig = new SparkMaxConfig();
 
-    indexMotorConfig = new SparkMaxConfig();
-
-    configureIndexMotor(m_Index, indexMotorConfig);
+    configureLaunchDiverterMotor(m_LaunchDiverter, launchDiverterMotorConfig);
   }
 
-  private void configureIndexMotor(SparkMax motor, SparkMaxConfig config){
+  private void configureLaunchDiverterMotor(SparkMax motor, SparkMaxConfig config){
     config.idleMode(IdleMode.kBrake);
-    config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
-    config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
+    config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_550);
+    config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_550);
     config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-     
+    
   }
 
-  public RunCommand IndexCollect() {
+  public RunCommand RunLaunchDivertertoCollect() {
     return new RunCommand(() -> {
-      m_Index.set(0.5);
+      m_LaunchDiverter.set(0.75);
     }, this);
-    }
+  }
 
-
-  public RunCommand IndexLaunch() {
+  public RunCommand ReverseLaunchDivertertoLaunch() {
     return new RunCommand(() -> {
-      m_Index.set(0.75);
+      m_LaunchDiverter.set(-0.75);
     }, this);
-    }
+  }
 
-  public RunCommand IndexReverse() {
-    return new RunCommand(() -> {
-      m_Index.set(-0.5);
-    }, this);
-    }
-
-  public Command IndexStop() {
+  public Command StopLaunchDiverter() {
     return new InstantCommand(() -> {
-      m_Index.set(0.0);
+      m_LaunchDiverter.set(0.0);
     }, this);
-    }
+  }
 
   @Override
   public void periodic() {

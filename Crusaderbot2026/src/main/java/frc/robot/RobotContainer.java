@@ -12,16 +12,19 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.SwerveController;
+import frc.robot.commands.ShortLaunchSequence;
+import frc.robot.commands.FarLaunchSequence;
+import frc.robot.commands.AutoFuelLaunch;
+import frc.robot.commands.CollectFuel;
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Aim;
 import frc.robot.subsystems.ClimberLift;
 import frc.robot.subsystems.ClimberLong;
 import frc.robot.subsystems.ClimberShort;
-import frc.robot.subsystems.Dozer;
 import frc.robot.subsystems.Index;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launch;
@@ -38,8 +41,15 @@ public class RobotContainer {
   private final JoystickButton slowDriveMode;
   
   //private final Joystick CoPilotController = new Joystick(1);
-  private final XboxController CoPilotController = new XboxController(1);
+  //private final XboxController CoPilotController = new XboxController(1);
   private static final CommandXboxController CopilotCommandController = new CommandXboxController(1);
+
+  private final ClimberLift climberLift = new ClimberLift();
+  private final ClimberLong climberLong = new ClimberLong();
+  private final ClimberShort climberShort = new ClimberShort();
+  private final Index index = new Index();
+  private final Intake intake = new Intake();
+  private final Launch launch = new Launch();
   
   private final int translationAxis;
   private final int strafeAxis;
@@ -86,11 +96,12 @@ public class RobotContainer {
             () -> robotCentric.getAsBoolean()) // lambda probably not needed but why not
     );
 
-    botCam.setDefaultCommand(
-      botCam.InitializeBotCam()
-    );
+    climberLift.setDefaultCommand(climberLift.ClimberLiftStop());
+    intake.setDefaultCommand(intake.IntakeStop());
+    index.setDefaultCommand(index.IndexStop());
+    launch.setDefaultCommand(launch.LaunchStop());
 
- 
+   
   configureBindings(); 
   }
 
@@ -114,9 +125,24 @@ public class RobotContainer {
           () -> robotCentric.getAsBoolean())
     );
 
-  
-}
+  //Intake/Index Controls
+    CopilotCommandController.a().whileTrue(new CollectFuel(index, intake, launch));
+    CopilotCommandController.b().whileTrue(intake.IntakeReverse());
+    CopilotCommandController.x().whileTrue(index.IndexReverse());
+
+  //Launch Controls
+    CopilotCommandController.rightBumper().whileTrue(new FarLaunchSequence()); //Commands Not Written Yet
+    CopilotCommandController.leftBumper().whileTrue(new ShortLaunchSequence()); //Commands Not Written Yet
+
+  //Climber Controls
+    CopilotCommandController.pov(0).whileTrue(climberLift.ClimberLiftUp());
+    CopilotCommandController.pov(180).whileTrue(climberLift.ClimberLiftRetract());
+    climberLong.setDefaultCommand(climberLong.LongClimberReach(() -> CopilotCommandController.getRightY()));
+    climberShort.setDefaultCommand(climberShort.ShortClimberReach(() -> CopilotCommandController.getLeftY()));
+
     
+  }
+
    public Command getAutonomousCommand() {
     return autoChooser.getSelected();
   }
