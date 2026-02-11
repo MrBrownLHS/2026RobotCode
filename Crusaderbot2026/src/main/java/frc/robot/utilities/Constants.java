@@ -38,7 +38,10 @@ public class Constants {
         public static final double KICKER_MOTOR_COLLECT_SPEED = 0.25; //Tune during testing
         public static final double KICKER_MOTOR_LAUNCH_SPEED = 0.75; //Tune during testing
 
-        public static final int HOPPER_MOTOR_ID = 17;
+        public static final int AGITATOR_MOTOR_ID = 17;
+        public static final double AGITATOR_MOTOR_SPEED = 0.5; //Tune
+
+        public static final int HOPPER_MOTOR_ID = 18;
         public static final int HOPPER_LIMIT_IN_DIO = 0;
         public static final int HOPPER_LIMIT_OUT_DIO = 1;
         public static final double HOPPER_EXTEND_SPEED = 0.5; //Tune during testing
@@ -46,8 +49,8 @@ public class Constants {
     }
   
   public static final class ClimberConstants {
-        public static final int CLIMBER_EXTEND_MOTOR_ID = 18;
-        public static final int CLIMBER_WINCH_MOTOR_ID = 19;
+        public static final int CLIMBER_EXTEND_MOTOR_ID = 19;
+        public static final int CLIMBER_WINCH_MOTOR_ID = 20;
         
         public static final double CLIMBER_DEADBAND = 0.01;
         public static final double CLIMBER_MAX_VELOCITY = 20.0;//adjust during tuning

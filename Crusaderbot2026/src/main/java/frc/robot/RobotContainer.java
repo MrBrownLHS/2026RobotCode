@@ -26,17 +26,13 @@ import frc.robot.commands.AutoFuelLaunch;
 import frc.robot.commands.CollectFuel;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.ClimberLift;
-import frc.robot.subsystems.ClimberLong;
-import frc.robot.subsystems.ClimberShort;
+import frc.robot.subsystems.ClimberWinch;
 import frc.robot.subsystems.Kicker;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
-import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.Agitator;
+import frc.robot.subsystems.Hopper;
 import frc.robot.utilities.Constants;
-
-
-
-
 
 
 public class RobotContainer {
@@ -51,12 +47,12 @@ public class RobotContainer {
 
   // Subsystem instances created once and shared across commands
   private final ClimberLift climberLift = new ClimberLift();
-  private final ClimberLong climberLong = new ClimberLong();
-  private final ClimberShort climberShort = new ClimberShort();
-  private final Kicker index = new Kicker();
+  private final ClimberWinch climberWinch = new ClimberWinch();
+  private final Kicker kicker = new Kicker();
+  private final Agitator agitator = new Agitator();
   private final Intake intake = new Intake();
   private final Launcher launch = new Launcher();
-  private final LaunchDiverter diverter = new LaunchDiverter();
+  private final Hopper hopper = new Hopper();
   
 
   // Controller axis mappings (populated from Constants)
@@ -108,11 +104,13 @@ public class RobotContainer {
     );
 
     // Set safe default (stopped) commands for other subsystems
+    climberWinch.setDefaultCommand(climberWinch.ClimberWinchStop());
     climberLift.setDefaultCommand(climberLift.ClimberLiftStop());
     intake.setDefaultCommand(intake.IntakeStop());
-    index.setDefaultCommand(index.IndexStop());
+    kicker.setDefaultCommand(kicker.KickerStop());
     launch.setDefaultCommand(launch.LaunchStop());
-    diverter.setDefaultCommand(diverter.StopLaunchDiverter());
+    hopper.setDefaultCommand(hopper.HopperStop());
+    agitator.setDefaultCommand(agitator.AgitatorStop());
 
     // Configure button bindings for control mappings
     configureBindings(); 
@@ -142,19 +140,17 @@ public class RobotContainer {
     );
 
     // Intake/Index Controls: co-pilot A runs all intake/index/launch collect
-    CopilotCommandController.a().whileTrue(new CollectFuel(index, intake, launch, diverter));
+    CopilotCommandController.a().whileTrue(new CollectFuel(kicker, intake, launch));
     CopilotCommandController.b().whileTrue(intake.IntakeReverse());
-    CopilotCommandController.x().whileTrue(index.IndexReverse());
+    CopilotCommandController.x().whileTrue(kicker.KickerReverse());
 
     // Launch Controls: short and far launch sequences
-    CopilotCommandController.rightBumper().whileTrue(new FarLaunchSequence(launch, intake, index, diverter));
-    CopilotCommandController.leftBumper().whileTrue(new ShortLaunchSequence(launch, intake, index, diverter)); 
+    CopilotCommandController.rightBumper().whileTrue(new FarLaunchSequence(launch, intake, kicker, agitator));
+    CopilotCommandController.leftBumper().whileTrue(new ShortLaunchSequence(launch, intake, kicker, agitator)); 
 
     // Climber Controls: POV for up/retract and continuous reach commands
     CopilotCommandController.pov(0).whileTrue(climberLift.ClimberLiftUp());
-    CopilotCommandController.pov(180).whileTrue(climberLift.ClimberLiftRetract());
-    climberLong.setDefaultCommand(climberLong.LongClimberReach(() -> CopilotCommandController.getRightY()));
-    climberShort.setDefaultCommand(climberShort.ShortClimberReach(() -> CopilotCommandController.getLeftY()));
+    CopilotCommandController.pov(180).whileTrue(climberLift.ClimberLiftRetract());//Need to bind winch commands.
 
   }
 

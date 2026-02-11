@@ -45,6 +45,12 @@ public class ClimberWinch extends SubsystemBase {
       }, this);
       }
 
+    public Command ClimberWinchStop() {
+      return new InstantCommand(() -> {
+        m_ClimberWinch.set(0);
+      }, this);
+      }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run

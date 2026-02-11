@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Kicker;
+import frc.robot.subsystems.Agitator;
 
 
 /**
@@ -20,10 +21,12 @@ public class ShortLaunchSequence extends ParallelCommandGroup {
   /**
    * @param launch Launch subsystem (provides LaunchFar())
    * @param intake Intake subsystem (provides IntakeCollect())
-   * @param kicker Kicker subsystem (provides KickerLaunch())
+   * @param kicker Kicker subsystem (provides KickerCloseLaunch())
+   * @param agitator Agitator subsystem (provides AgitatorRun())
+   * 
    
    */
-  public ShortLaunchSequence(Launcher launch, Intake intake, Kicker kicker) {
+  public ShortLaunchSequence(Launcher launch, Intake intake, Kicker kicker, Agitator agitator) {
     // Start the launch motor immediately and concurrently run a sequence
     // that waits 3 seconds and then starts intake+index collect in parallel.
     addCommands(
@@ -35,7 +38,8 @@ public class ShortLaunchSequence extends ParallelCommandGroup {
             new WaitCommand(3.0),
             new ParallelCommandGroup(
                 kicker.KickerCloseLaunch(),
-                intake.IntakeCollect()
+                intake.IntakeCollect(),
+                agitator.AgitatorRun()
             )
         )
     );
@@ -43,6 +47,6 @@ public class ShortLaunchSequence extends ParallelCommandGroup {
     // Explicitly declare requirements so the scheduler knows which
     // subsystems this command will use. Child commands also declare
     // requirements, but adding them here makes intent clear.
-    addRequirements(launch, intake, kicker);
+    addRequirements(launch, intake, kicker, agitator);
   }
 }

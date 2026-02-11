@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Kicker;
+import frc.robot.subsystems.Agitator;
 
 
 /**
@@ -19,11 +20,12 @@ import frc.robot.subsystems.Kicker;
 public class FarLaunchSequence extends ParallelCommandGroup {
   /**
    * @param launch Launch subsystem (provides LaunchFar())
-   * @param intake Intake subsystem (provides IntakeCollect())
-   * @param kicker Kicker subsystem (provides KickerLaunch())
+   * @param intake Intake subsystem (provides IntakeLaunch())
+   * @param kicker Kicker subsystem (provides KickerFarLaunch())
+   * @param agitator Agitator subsystem (provides AgitatorRun())
    * 
    */
-  public FarLaunchSequence(Launcher launch, Intake intake, Kicker kicker) {
+  public FarLaunchSequence(Launcher launch, Intake intake, Kicker kicker, Agitator agitator) {
     // Start the launch motor immediately and concurrently run a sequence
     // that waits 3 seconds and then starts intake+kicker collect in parallel.
     addCommands(
@@ -35,7 +37,8 @@ public class FarLaunchSequence extends ParallelCommandGroup {
             new WaitCommand(3.0),
             new ParallelCommandGroup(
                 kicker.KickerFarLaunch(),
-                intake.IntakeLaunch()
+                intake.IntakeLaunch(),
+                agitator.AgitatorRun()
             )
         )
     );
@@ -43,6 +46,6 @@ public class FarLaunchSequence extends ParallelCommandGroup {
     // Explicitly declare requirements so the scheduler knows which
     // subsystems this command will use. Child commands also declare
     // requirements, but adding them here makes intent clear.
-    addRequirements(launch, intake, kicker);
+    addRequirements(launch, intake, kicker, agitator);
   }
 }

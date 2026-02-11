@@ -89,4 +89,8 @@ public class Hopper extends SubsystemBase {
     return new RunCommand(() -> extend(Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED), this)
         .until(() -> isHopperOutLimitPressed());
   }
+
+  public Command HopperStop() {
+    return new RunCommand(() -> stop(), this);
+  } 
 }
