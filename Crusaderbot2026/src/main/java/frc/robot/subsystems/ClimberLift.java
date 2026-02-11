@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 // Project constants for IDs and tuning
@@ -39,7 +37,7 @@ public class ClimberLift extends SubsystemBase {
    */
   public ClimberLift() {
     // Instantiate the motor with the ID from Constants and brushless type
-    m_ClimberLift = new SparkMax(Constants.ClimberConstants.CLIMBER_LIFT_MOTOR_ID, MotorType.kBrushless);
+    m_ClimberLift = new SparkMax(Constants.ClimberConstants.CLIMBER_EXTEND_MOTOR_ID, MotorType.kBrushless);
 
     // Prepare and apply motor configuration
     climberLiftMotorConfig = new SparkMaxConfig();

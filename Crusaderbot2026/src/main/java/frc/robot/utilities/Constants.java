@@ -23,17 +23,32 @@ public class Constants {
   public static final int gyroID = 0;
 
   public static final class FuelSystemConstants {
-        public static final int INTAKE_MOTOR_ID = 16;
-        public static final int INDEX_MOTOR_ID = 17;
-        public static final int LAUNCH_MOTOR_ID = 18;
-        public static final int LAUNCH_DIVERTER_MOTOR_ID = 19;
+        public static final int INTAKE_MOTOR_ID = 13;
+        public static final double INTAKE_MOTOR_SPEED = 0.5; //Tune during testing
+
+        public static final int INDEX_MOTOR_ID = 14;
+        public static final double INDEX_MOTOR_SPEED = 0.75; //Tune during testing
+
+        public static final int LAUNCH_MOTOR_1_ID = 15;
+        //public static final int LAUNCH_MOTOR_2_ID = 20;
+        public static final double LAUNCH_MOTOR_LAUNCH_SPEED = 0.75; //Tune during testing
+        public static final double LAUNCH_MOTOR_COLLECT_SPEED = 0.25; //Tune during testing
+
+        public static final int KICKER_MOTOR_ID = 16;
+        public static final double KICKER_MOTOR_COLLECT_SPEED = 0.25; //Tune during testing
+        public static final double KICKER_MOTOR_LAUNCH_SPEED = 0.75; //Tune during testing
+
+        public static final int HOPPER_MOTOR_ID = 17;
+        public static final int HOPPER_LIMIT_IN_DIO = 0;
+        public static final int HOPPER_LIMIT_OUT_DIO = 1;
+        public static final double HOPPER_EXTEND_SPEED = 0.5; //Tune during testing
+        public static final double HOPPER_RETRACT_SPEED = 0.5; //Tune during testing
     }
   
   public static final class ClimberConstants {
-        public static final int CLIMBER_LONG_MOTOR_ID = 13;
-        public static final int CLIMBER_SHORT_MOTOR_ID = 14;
-        public static final int CLIMBER_LIFT_MOTOR_ID = 15;
-
+        public static final int CLIMBER_EXTEND_MOTOR_ID = 18;
+        public static final int CLIMBER_WINCH_MOTOR_ID = 19;
+        
         public static final double CLIMBER_DEADBAND = 0.01;
         public static final double CLIMBER_MAX_VELOCITY = 20.0;//adjust during tuning
         public static final double CLIMBER_MAX_ACCELERATION = 20.0;//Adjust during tuning
@@ -100,7 +115,7 @@ public class Constants {
             public static final int driveMotorID = 1;
             public static final int angleMotorID = 2;
             public static final int canCoderID = 12;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.4436);
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.0);
             public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
 
@@ -109,7 +124,7 @@ public class Constants {
             public static final int driveMotorID = 3;
             public static final int angleMotorID = 4;
             public static final int canCoderID = 11;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.838379);
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.0);
             public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
 
@@ -118,7 +133,7 @@ public class Constants {
             public static final int driveMotorID = 5;
             public static final int angleMotorID = 6;
             public static final int canCoderID = 10;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.6059);
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.0);
             public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
 
@@ -127,7 +142,7 @@ public class Constants {
             public static final int driveMotorID = 7;
             public static final int angleMotorID = 8;
             public static final int canCoderID = 9;
-            public static final Rotation2d angleOffset = Rotation2d.fromRotations(-0.357178);
+            public static final Rotation2d angleOffset = Rotation2d.fromRotations(0.0);
             public static final SwerveModuleConstants constants = new SwerveModuleConstants(driveMotorID, angleMotorID, canCoderID, angleOffset);
         }
     }

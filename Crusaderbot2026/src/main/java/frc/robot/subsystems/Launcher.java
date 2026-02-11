@@ -11,57 +11,63 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-import com.revrobotics.spark.SparkBase.PersistMode;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import com.revrobotics.spark.SparkBase.ResetMode;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 
 
-public class Index extends SubsystemBase {
-  private final SparkMax m_Index;
-  private SparkMaxConfig indexMotorConfig;
- 
-  /** Creates a new Index. */
-  public Index() {
-    m_Index = new SparkMax(Constants.FuelSystemConstants.INDEX_MOTOR_ID, MotorType.kBrushless);
+public class Launcher extends SubsystemBase {
+  private final SparkMax m_Launch;
+  private SparkMaxConfig intakeMotorConfig;
 
-    indexMotorConfig = new SparkMaxConfig();
+  /** Creates a new Launch. */
+  public Launcher() {
+    m_Launch = new SparkMax(Constants.FuelSystemConstants.LAUNCH_MOTOR_1_ID, MotorType.kBrushless);
 
-    configureIndexMotor(m_Index, indexMotorConfig);
+    intakeMotorConfig = new SparkMaxConfig();
+
+    configureIntakeMotor(m_Launch, intakeMotorConfig);
   }
 
-  private void configureIndexMotor(SparkMax motor, SparkMaxConfig config){
+  private void configureIntakeMotor(SparkMax motor, SparkMaxConfig config){
     config.idleMode(IdleMode.kBrake);
     config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-     
+    
   }
 
-  public RunCommand IndexCollect() {
+  public RunCommand LaunchClose() {
     return new RunCommand(() -> {
-      m_Index.set(0.5);
+      m_Launch.set(0.75);
+    }, this);
+    }
+
+  public RunCommand LaunchFar() {
+    return new RunCommand(() -> {
+      m_Launch.set(0.95);
     }, this);
     }
 
 
-  public RunCommand IndexLaunch() {
+  public RunCommand LaunchCollect() {
     return new RunCommand(() -> {
-      m_Index.set(0.75);
+      m_Launch.set(0.25);
     }, this);
     }
 
-  public RunCommand IndexReverse() {
+  public RunCommand LaunchReverse() {
     return new RunCommand(() -> {
-      m_Index.set(-0.5);
+      m_Launch.set(-0.5);
     }, this);
     }
 
-  public Command IndexStop() {
+  public Command LaunchStop() {
     return new InstantCommand(() -> {
-      m_Index.set(0.0);
+      m_Launch.set(0.0);
     }, this);
     }
 

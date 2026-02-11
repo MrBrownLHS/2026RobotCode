@@ -4,10 +4,10 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
-import frc.robot.subsystems.Launch;
+import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Index;
-import frc.robot.subsystems.LaunchDiverter;
+import frc.robot.subsystems.Kicker;
+
 
 /**
  * Command that starts the launch motor at the "short" speed immediately,
@@ -20,10 +20,10 @@ public class ShortLaunchSequence extends ParallelCommandGroup {
   /**
    * @param launch Launch subsystem (provides LaunchFar())
    * @param intake Intake subsystem (provides IntakeCollect())
-   * @param index Index subsystem (provides IndexCollect())
-   * @param diverter LaunchDiverter subsystem (provides LaunchDivertertoLaunch())
+   * @param kicker Kicker subsystem (provides KickerLaunch())
+   
    */
-  public ShortLaunchSequence(Launch launch, Intake intake, Index index, LaunchDiverter diverter) {
+  public ShortLaunchSequence(Launcher launch, Intake intake, Kicker kicker) {
     // Start the launch motor immediately and concurrently run a sequence
     // that waits 3 seconds and then starts intake+index collect in parallel.
     addCommands(
@@ -34,8 +34,7 @@ public class ShortLaunchSequence extends ParallelCommandGroup {
         new SequentialCommandGroup(
             new WaitCommand(3.0),
             new ParallelCommandGroup(
-                diverter.LaunchDivertertoLaunch(),
-                index.IndexCollect(),
+                kicker.KickerCloseLaunch(),
                 intake.IntakeCollect()
             )
         )
@@ -44,6 +43,6 @@ public class ShortLaunchSequence extends ParallelCommandGroup {
     // Explicitly declare requirements so the scheduler knows which
     // subsystems this command will use. Child commands also declare
     // requirements, but adding them here makes intent clear.
-    addRequirements(launch, intake, index, diverter);
+    addRequirements(launch, intake, kicker);
   }
 }

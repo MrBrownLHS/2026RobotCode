@@ -28,10 +28,10 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.ClimberLift;
 import frc.robot.subsystems.ClimberLong;
 import frc.robot.subsystems.ClimberShort;
-import frc.robot.subsystems.Index;
+import frc.robot.subsystems.Kicker;
 import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Launch;
-import frc.robot.subsystems.LaunchDiverter;
+import frc.robot.subsystems.Launcher;
+import frc.robot.subsystems.Launcher;
 import frc.robot.utilities.Constants;
 
 
@@ -53,9 +53,9 @@ public class RobotContainer {
   private final ClimberLift climberLift = new ClimberLift();
   private final ClimberLong climberLong = new ClimberLong();
   private final ClimberShort climberShort = new ClimberShort();
-  private final Index index = new Index();
+  private final Kicker index = new Kicker();
   private final Intake intake = new Intake();
-  private final Launch launch = new Launch();
+  private final Launcher launch = new Launcher();
   private final LaunchDiverter diverter = new LaunchDiverter();
   
 
