@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Agitator extends SubsystemBase {
@@ -66,5 +67,7 @@ public class Agitator extends SubsystemBase {
         m_Agitator.set(0.5);
         break;
     }
+
+    SmartDashboard.putString("Agitator State", currentState.toString());
   }
 }
