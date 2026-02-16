@@ -1,8 +1,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Intake;
@@ -25,27 +25,24 @@ public class FarLaunchSequence extends ParallelCommandGroup {
    * @param agitator Agitator subsystem (provides AgitatorRun())
    * 
    */
-  public FarLaunchSequence(Launcher launch, Intake intake, Kicker kicker, Agitator agitator) {
-    // Start the launch motor immediately and concurrently run a sequence
-    // that waits 3 seconds and then starts intake+kicker collect in parallel.
-    addCommands(
-        // Keep launch running from the start
-        launch.LaunchFar(),
+  public FarLaunchSequence(Launcher launch, 
+                          Intake intake, 
+                          Kicker kicker, 
+                          Agitator agitator) {
 
-        // After a 3s delay, start the intake and index collectors in parallel
-        new SequentialCommandGroup(
-            new WaitCommand(3.0),
-            new ParallelCommandGroup(
-                kicker.KickerFarLaunch(),
-                intake.IntakeLaunch(),
-                agitator.AgitatorRun()
-            )
-        )
+       addCommands(
+        new InstantCommand(() ->
+          launch.setState(Launcher.LauncherState.LAUNCH_FAR)
+        ),
+
+        new WaitCommand(1.0),
+
+        new InstantCommand(() -> {
+          intake.setState(Intake.State.INTAKE_LAUNCH);
+          kicker.setState(Kicker.State.KICKER_FAR_LAUNCH);
+          agitator.setState(Agitator.State.AGITATOR_LAUNCH);
+        })
     );
-
-    // Explicitly declare requirements so the scheduler knows which
-    // subsystems this command will use. Child commands also declare
-    // requirements, but adding them here makes intent clear.
-    addRequirements(launch, intake, kicker, agitator);
-  }
+ }
+        
 }

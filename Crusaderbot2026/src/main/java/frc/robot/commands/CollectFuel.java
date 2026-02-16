@@ -32,7 +32,7 @@ public class CollectFuel extends ParallelCommandGroup {
     addCommands(
         kicker.KickerCollect(),
         intake.IntakeCollect(),
-        launch.LaunchCollect()        
+        launch.runCollect()        
     );
 
     // Optionally declare requirements explicitly (not strictly necessary

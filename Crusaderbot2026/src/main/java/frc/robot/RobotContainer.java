@@ -9,11 +9,11 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
+///import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+//import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.SwerveController;
 import frc.robot.commands.ShortLaunchSequence;
 import frc.robot.commands.FarLaunchSequence;
-import frc.robot.commands.AutoFuelLaunch;
+//import frc.robot.commands.AutoFuelLaunch;
 import frc.robot.commands.CollectFuel;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.ClimberLift;
@@ -143,6 +143,12 @@ public class RobotContainer {
     CopilotCommandController.a().whileTrue(new CollectFuel(kicker, intake, launch));
     CopilotCommandController.b().whileTrue(intake.IntakeReverse());
     CopilotCommandController.x().whileTrue(kicker.KickerReverse());
+
+    CopilotCommandController.rightBumper()
+    .onTrue(new ShootFar(launcher, intake, kicker, agitator));
+
+    CopilotCommandController.rightBumper()
+    .onFalse(new StopShooting(launcher, intake, kicker, agitator));
 
     // Launch Controls: short and far launch sequences
     CopilotCommandController.rightBumper().whileTrue(new FarLaunchSequence(launch, intake, kicker, agitator));

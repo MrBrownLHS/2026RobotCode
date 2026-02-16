@@ -9,7 +9,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 // REV SparkMax motor controller classes and config helpers
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -78,7 +77,7 @@ public class ClimberLift extends SubsystemBase {
    * Factory command: stop the lift motor immediately (InstantCommand).
    */
   public Command ClimberLiftStop() {
-    return new InstantCommand(() -> {
+    return new RunCommand(() -> {
       m_ClimberLift.set(0.0);
     }, this);
   }

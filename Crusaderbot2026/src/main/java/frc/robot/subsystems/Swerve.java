@@ -8,7 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+//import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,9 +34,9 @@ public class Swerve extends SubsystemBase {
 
     private NEOSwerveModule[] swerveModules; // Change this to FXSwerveModule[] if you are using the FXSwerveModule class
 
-    private SlewRateLimiter translationLimiter = new SlewRateLimiter(2.9);
-    private SlewRateLimiter strafeLimiter = new SlewRateLimiter(2.9);
-    private SlewRateLimiter rotationLimiter = new SlewRateLimiter(2.9);
+    //private SlewRateLimiter translationLimiter = new SlewRateLimiter(2.9);
+    //private SlewRateLimiter strafeLimiter = new SlewRateLimiter(2.9);
+    //private SlewRateLimiter rotationLimiter = new SlewRateLimiter(2.9);
 
     private Field2d field;
 

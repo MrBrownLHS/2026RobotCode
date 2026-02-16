@@ -11,10 +11,18 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Agitator extends SubsystemBase {
+
+    public enum State {
+      IDLE,
+      AGITATE,
+      REVERSE,
+    }
+    
+    private State currentState = State.IDLE;
+    
     private final SparkMax m_Agitator;
     private SparkMaxConfig agitatorMotorConfig;
 
@@ -29,32 +37,34 @@ public class Agitator extends SubsystemBase {
  
      private void configureAgitatorMotor(SparkMax motor, SparkMaxConfig config){
        config.idleMode(IdleMode.kBrake);
-       config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
-       config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
+       config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_550);
+       config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_550);
        config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
        
      }
- 
-     public RunCommand AgitatorRun() {
-       return new RunCommand(() -> {
-         m_Agitator.set(0.5);
-       }, this);
-       }
- 
- 
-     public RunCommand AgitatorReverse() {
-       return new RunCommand(() -> {
-         m_Agitator.set(-0.5);
-       }, this);
-       }
 
-     public Command AgitatorStop() {
-       return new RunCommand(() -> m_Agitator.set(0.0), this);
-     }
- 
+      public void setState(State newState) {
+        currentState = newState;
+      }
 
+      public State getState() {
+        return currentState;
+      }
+     
+ 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    switch (currentState) {
+      case IDLE:
+        m_Agitator.set(0.0);
+        break;
+      case AGITATE:
+        m_Agitator.set(-0.5);
+        break;
+      case REVERSE:
+        m_Agitator.set(0.5);
+        break;
+    }
   }
 }

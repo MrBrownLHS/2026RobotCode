@@ -7,7 +7,6 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -46,7 +45,7 @@ public class ClimberWinch extends SubsystemBase {
       }
 
     public Command ClimberWinchStop() {
-      return new InstantCommand(() -> {
+      return new RunCommand(() -> {
         m_ClimberWinch.set(0);
       }, this);
       }

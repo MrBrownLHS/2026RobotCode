@@ -12,7 +12,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 
@@ -47,24 +46,24 @@ public class Kicker extends SubsystemBase {
 
   public RunCommand KickerCloseLaunch() {
     return new RunCommand(() -> {
-      m_Kicker.set(0.75);
+      m_Kicker.set(-0.75);
     }, this);
     }
     
   public RunCommand KickerFarLaunch() {
     return new RunCommand(() -> {
-      m_Kicker.set(0.95);
+      m_Kicker.set(-0.95);
     }, this);
     }
     
   public RunCommand KickerReverse() {
     return new RunCommand(() -> {
-      m_Kicker.set(-0.25);
+      m_Kicker.set(0.25);
     }, this);
     }
 
   public Command KickerStop() {
-    return new InstantCommand(() -> {
+    return new RunCommand(() -> {
       m_Kicker.set(0.0);
     }, this);
     }

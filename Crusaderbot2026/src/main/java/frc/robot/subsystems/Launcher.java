@@ -11,15 +11,21 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-
-
 public class Launcher extends SubsystemBase {
+
+  public enum State {
+    IDLE,
+    LAUNCH_FAR,
+    LAUNCH_CLOSE,
+    LAUNCH_COLLECT,
+    LAUNCH_REVERSE
+  }
+
+  private State currentState = State.IDLE;
+
   private final SparkMax m_Launch;
   private SparkMaxConfig intakeMotorConfig;
 
@@ -37,42 +43,37 @@ public class Launcher extends SubsystemBase {
     config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-    
+  
   }
 
-  public RunCommand LaunchClose() {
-    return new RunCommand(() -> {
-      m_Launch.set(0.75);
-    }, this);
-    }
+  public void setState(State newState) {
+    currentState = newState;
+  }
 
-  public RunCommand LaunchFar() {
-    return new RunCommand(() -> {
-      m_Launch.set(0.95);
-    }, this);
-    }
+  public State getState() {
+    return currentState;
+  }
 
-
-  public RunCommand LaunchCollect() {
-    return new RunCommand(() -> {
-      m_Launch.set(0.25);
-    }, this);
-    }
-
-  public RunCommand LaunchReverse() {
-    return new RunCommand(() -> {
-      m_Launch.set(-0.5);
-    }, this);
-    }
-
-  public Command LaunchStop() {
-    return new InstantCommand(() -> {
-      m_Launch.set(0.0);
-    }, this);
-    }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    switch (currentState) {
+      case IDLE:
+        m_Launch.set(0.0);
+        break;
+      case LAUNCH_FAR:
+        m_Launch.set(0.95);
+        break;
+      case LAUNCH_CLOSE:
+        m_Launch.set(0.75);
+        break;
+      case LAUNCH_COLLECT:
+        m_Launch.set(0.25);
+        break;
+      case LAUNCH_REVERSE:
+        m_Launch.set(-0.5);
+        break;
+    }
   }
 }
