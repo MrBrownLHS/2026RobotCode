@@ -9,21 +9,21 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-///import edu.wpi.first.wpilibj.XboxController;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
-import frc.robot.commands.ShortLaunchSequence;
-import frc.robot.commands.FarLaunchSequence;
+
 //import frc.robot.commands.AutoFuelLaunch;
-import frc.robot.commands.CollectFuel;
+
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.ClimberLift;
 import frc.robot.subsystems.ClimberWinch;
@@ -32,6 +32,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Agitator;
 import frc.robot.subsystems.Hopper;
+import frc.robot.subsystems.SuperSystem;
 import frc.robot.utilities.Constants;
 
 
@@ -53,6 +54,8 @@ public class RobotContainer {
   private final Intake intake = new Intake();
   private final Launcher launch = new Launcher();
   private final Hopper hopper = new Hopper();
+  // SuperSystem coordinates states across these shared subsystems
+  private final SuperSystem superSystem = new SuperSystem(launch, kicker, intake, hopper, agitator);
   
 
   // Controller axis mappings (populated from Constants)
@@ -103,14 +106,6 @@ public class RobotContainer {
             () -> robotCentric.getAsBoolean()) // lambda probably not needed but why not
     );
 
-    // Set safe default (stopped) commands for other subsystems
-    climberWinch.setDefaultCommand(climberWinch.ClimberWinchStop());
-    climberLift.setDefaultCommand(climberLift.ClimberLiftStop());
-    intake.setDefaultCommand(intake.IntakeStop());
-    kicker.setDefaultCommand(kicker.KickerStop());
-    launch.setDefaultCommand(launch.LaunchStop());
-    hopper.setDefaultCommand(hopper.HopperStop());
-    agitator.setDefaultCommand(agitator.AgitatorStop());
 
     // Configure button bindings for control mappings
     configureBindings(); 
@@ -140,19 +135,36 @@ public class RobotContainer {
     );
 
     // Intake/Index Controls: co-pilot A runs all intake/index/launch collect
-    CopilotCommandController.a().whileTrue(new CollectFuel(kicker, intake, launch));
-    CopilotCommandController.b().whileTrue(intake.IntakeReverse());
-    CopilotCommandController.x().whileTrue(kicker.KickerReverse());
+    CopilotCommandController.a().whileTrue(
+      new RunCommand (
+        () -> superSystem.setWantedState(
+          SuperSystem.WantedState.LAUNCH_FAR), superSystem)
+    );
+    
+    CopilotCommandController.b().whileTrue(
+      new RunCommand (
+        () -> superSystem.setWantedState(
+          SuperSystem.WantedState.LAUNCH_CLOSE), superSystem)
+    );
 
-    CopilotCommandController.rightBumper()
-    .onTrue(new ShootFar(launcher, intake, kicker, agitator));
+    CopilotCommandController.x().onTrue(
+      new RunCommand (
+        () -> superSystem.setWantedState(
+          SuperSystem.WantedState.IDLE), superSystem)
+    );
 
-    CopilotCommandController.rightBumper()
-    .onFalse(new StopShooting(launcher, intake, kicker, agitator));
+    CopilotCommandController.rightBumper().whileTrue(
+      new RunCommand (
+        () -> superSystem.setWantedState(
+          SuperSystem.WantedState.COLLECT), superSystem)
+    );
 
-    // Launch Controls: short and far launch sequences
-    CopilotCommandController.rightBumper().whileTrue(new FarLaunchSequence(launch, intake, kicker, agitator));
-    CopilotCommandController.leftBumper().whileTrue(new ShortLaunchSequence(launch, intake, kicker, agitator)); 
+    CopilotCommandController.leftBumper().whileTrue(
+      new RunCommand (
+        () -> superSystem.setWantedState(
+          SuperSystem.WantedState.REVERSE), superSystem)
+    );
+
 
     // Climber Controls: POV for up/retract and continuous reach commands
     CopilotCommandController.pov(0).whileTrue(climberLift.ClimberLiftUp());

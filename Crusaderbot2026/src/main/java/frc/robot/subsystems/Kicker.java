@@ -6,17 +6,27 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 
 
 public class Kicker extends SubsystemBase {
+
+      public enum State {
+        IDLE,
+        KICK_COLLECT,
+        KICK_CLOSE,
+        KICK_FAR,
+        KICK_REVERSE
+      }
+      
+  private State currentState = State.IDLE;
+
   private final SparkMax m_Kicker;
   private SparkMaxConfig kickerMotorConfig;
  
@@ -37,39 +47,36 @@ public class Kicker extends SubsystemBase {
      
   }
 
-  public RunCommand KickerCollect() {
-    return new RunCommand(() -> {
-      m_Kicker.set(0.15);
-    }, this);
-    }
+  public void setState(State newState) {
+    currentState = newState;
+  }
 
+  public State getState() {
+    return currentState;
+  }
 
-  public RunCommand KickerCloseLaunch() {
-    return new RunCommand(() -> {
-      m_Kicker.set(-0.75);
-    }, this);
-    }
-    
-  public RunCommand KickerFarLaunch() {
-    return new RunCommand(() -> {
-      m_Kicker.set(-0.95);
-    }, this);
-    }
-    
-  public RunCommand KickerReverse() {
-    return new RunCommand(() -> {
-      m_Kicker.set(0.25);
-    }, this);
-    }
-
-  public Command KickerStop() {
-    return new RunCommand(() -> {
-      m_Kicker.set(0.0);
-    }, this);
-    }
+  
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    switch (currentState) {
+      case IDLE:
+        m_Kicker.set(0.0);
+        break;
+      case KICK_COLLECT:
+        m_Kicker.set(Constants.FuelSystemConstants.KICKER_COLLECT_SPEED);
+        break;
+      case KICK_CLOSE:
+        m_Kicker.set(Constants.FuelSystemConstants.KICKER_CLOSE_SPEED);
+        break;
+      case KICK_FAR:
+        m_Kicker.set(Constants.FuelSystemConstants.KICKER_FAR_SPEED);
+        break;
+      case KICK_REVERSE:
+        m_Kicker.set(-Constants.FuelSystemConstants.KICKER_COLLECT_SPEED);
+        break;
+      }
+    SmartDashboard.putString("Kicker State", currentState.toString());
   }
 }

@@ -6,13 +6,17 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.RelativeEncoder;
 import frc.robot.utilities.Constants;
-import edu.wpi.first.wpilibj2.command.Command;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 
 public class Launcher extends SubsystemBase {
 
@@ -20,38 +24,65 @@ public class Launcher extends SubsystemBase {
     IDLE,
     LAUNCH_FAR,
     LAUNCH_CLOSE,
-    LAUNCH_COLLECT,
-    LAUNCH_REVERSE
+    LAUNCH_COLLECT
   }
 
   private State currentState = State.IDLE;
 
   private final SparkMax m_Launch;
-  private SparkMaxConfig intakeMotorConfig;
+  private final RelativeEncoder launchEncoder;
+  private final SparkMaxConfig launchMotorConfig;
+
+  // WPILib PID controller to compute motor outputs to reach target RPM
+  private final PIDController pidController;
+  // Optional feedforward (left at zero unless tuned)
+  private final SimpleMotorFeedforward feedforward;
+
+  private static final double LAUNCH_FAR_RPM = 5200; // Tune
+  private static final double LAUNCH_CLOSE_RPM = 4000; // Tune
+  private static final double LAUNCH_COLLECT_RPM = 1500; // Tune
+  private static final double LAUNCH_RPM_TOLERANCE = 150; // Tune
 
   /** Creates a new Launch. */
   public Launcher() {
-    m_Launch = new SparkMax(Constants.FuelSystemConstants.LAUNCH_MOTOR_1_ID, MotorType.kBrushless);
+  m_Launch = new SparkMax(Constants.FuelSystemConstants.LAUNCH_MOTOR_1_ID, MotorType.kBrushless);
 
-    intakeMotorConfig = new SparkMaxConfig();
+  launchMotorConfig = new SparkMaxConfig();
+  launchMotorConfig.idleMode(IdleMode.kBrake);
+  launchMotorConfig.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
+  launchMotorConfig.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
+  launchMotorConfig.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
+  // Apply configuration to the motor (match pattern used in other subsystems)
+ 
+  launchEncoder = m_Launch.getEncoder();
 
-    configureIntakeMotor(m_Launch, intakeMotorConfig);
+  // Initialize PID controller and optional feedforward using constants
+  pidController = new PIDController(Constants.FuelSystemConstants.LAUNCH_P, Constants.FuelSystemConstants.LAUNCH_I, Constants.FuelSystemConstants.LAUNCH_D);
+  pidController.setTolerance(LAUNCH_RPM_TOLERANCE);
+  feedforward = new SimpleMotorFeedforward(Constants.FuelSystemConstants.LAUNCH_KS, Constants.FuelSystemConstants.LAUNCH_KV, 0.0);
+
+  m_Launch.set(0.0);
   }
 
-  private void configureIntakeMotor(SparkMax motor, SparkMaxConfig config){
-    config.idleMode(IdleMode.kBrake);
-    config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
-    config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
-    config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-  
+  public void setState(State state) {
+    currentState = state;
   }
 
-  public void setState(State newState) {
-    currentState = newState;
+  public boolean atSpeed() {
+    return pidController.atSetpoint();
   }
 
-  public State getState() {
-    return currentState;
+  private double getTargetRPM() {
+    switch (currentState) {
+      case LAUNCH_FAR:
+        return LAUNCH_FAR_RPM;
+      case LAUNCH_CLOSE:
+        return LAUNCH_CLOSE_RPM;
+      case LAUNCH_COLLECT:
+        return LAUNCH_COLLECT_RPM;
+      default:
+        return 0.0;
+    }
   }
 
 
@@ -63,17 +94,20 @@ public class Launcher extends SubsystemBase {
         m_Launch.set(0.0);
         break;
       case LAUNCH_FAR:
-        m_Launch.set(0.95);
-        break;
       case LAUNCH_CLOSE:
-        m_Launch.set(0.75);
-        break;
       case LAUNCH_COLLECT:
-        m_Launch.set(0.25);
-        break;
-      case LAUNCH_REVERSE:
-        m_Launch.set(-0.5);
+        double target = getTargetRPM();
+        double measurement = launchEncoder.getVelocity(); // RPM (RelativeEncoder.getVelocity() returns RPM by default)
+        // Calculate PID output (tuned so output approximates -1..1 motor set)
+        double pidOutput = pidController.calculate(measurement, target);
+        //Optionally add feedforward (commented out until tuned):
+        double ff = feedforward.calculate(target);
+        double output = MathUtil.clamp(pidOutput + ff / 12.0, -1.0, 1.0);
+        //double output = MathUtil.clamp(pidOutput, -1.0, 1.0);
+        m_Launch.set(output);
         break;
     }
+    SmartDashboard.putString("Launcher State", currentState.toString());
+    SmartDashboard.putNumber("Launcher RPM", launchEncoder.getVelocity());
   }
 }

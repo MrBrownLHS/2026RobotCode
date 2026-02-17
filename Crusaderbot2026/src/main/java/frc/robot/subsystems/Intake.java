@@ -5,18 +5,27 @@
 
 package frc.robot.subsystems;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-import edu.wpi.first.wpilibj2.command.Command;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 
 
 public class Intake extends SubsystemBase {
+
+    public enum State {
+      IDLE,
+      INTAKE_COLLECT,
+      INTAKE_LAUNCH,
+      INTAKE_REVERSE,
+    }
+
+  private State currentState = State.IDLE;
+
   private final SparkMax m_Intake;
   private SparkMaxConfig intakeMotorConfig;
  
@@ -37,33 +46,32 @@ public class Intake extends SubsystemBase {
     
   }
 
-  public RunCommand IntakeCollect() {
-    return new RunCommand(() -> {
-      m_Intake.set(-0.5);
-    }, this);
-    }
+  public void setState(State newState) {
+    currentState = newState;
+  }
 
+  public State getState() {
+    return currentState;
+  }
 
-  public RunCommand IntakeLaunch() {
-    return new RunCommand(() -> {
-      m_Intake.set(-0.75);
-    }, this);
-    }
-
-  public RunCommand IntakeReverse() {
-    return new RunCommand(() -> {
-      m_Intake.set(0.5);
-    }, this);
-    }
-
-  public Command IntakeStop() {
-    return new RunCommand(() -> {
-      m_Intake.set(0.0);
-    }, this);
-    }
-
+  
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    switch (currentState) {
+      case IDLE:
+        m_Intake.set(0.0);
+        break;
+      case INTAKE_COLLECT:
+        m_Intake.set(Constants.FuelSystemConstants.INTAKE_MOTOR_COLLECT_SPEED);
+        break;
+      case INTAKE_LAUNCH:
+        m_Intake.set(Constants.FuelSystemConstants.INTAKE_MOTOR_LAUNCH_SPEED);
+        break;
+      case INTAKE_REVERSE:
+        m_Intake.set(-Constants.FuelSystemConstants.INTAKE_MOTOR_COLLECT_SPEED);
+        break;
+      }
+    SmartDashboard.putString("Intake State", currentState.toString());
   }
 }

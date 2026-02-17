@@ -5,12 +5,10 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -61,10 +59,10 @@ public class Agitator extends SubsystemBase {
         m_Agitator.set(0.0);
         break;
       case AGITATE:
-        m_Agitator.set(-0.5);
+        m_Agitator.set(Constants.FuelSystemConstants.AGITATOR_AGITATE_SPEED);
         break;
       case REVERSE:
-        m_Agitator.set(0.5);
+        m_Agitator.set(Constants.FuelSystemConstants.AGITATOR_REVERSE_SPEED);
         break;
     }
 
