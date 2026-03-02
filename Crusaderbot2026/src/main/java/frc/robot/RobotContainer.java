@@ -25,8 +25,8 @@ import frc.robot.commands.SwerveController;
 //import frc.robot.commands.AutoFuelLaunch;
 
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.ClimberLift;
-import frc.robot.subsystems.ClimberWinch;
+//import frc.robot.subsystems.ClimberWinchLeft;
+//import frc.robot.subsystems.ClimberWinchRight;
 import frc.robot.subsystems.Kicker;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
@@ -47,8 +47,9 @@ public class RobotContainer {
   private static final CommandXboxController CopilotCommandController = new CommandXboxController(1);
 
   // Subsystem instances created once and shared across commands
-  private final ClimberLift climberLift = new ClimberLift();
-  private final ClimberWinch climberWinch = new ClimberWinch();
+  
+  //private final ClimberWinchLeft climberWinchLeft = new ClimberWinchLeft();
+  //private final ClimberWinchRight climberWinchRight = new ClimberWinchRight();
   private final Kicker kicker = new Kicker();
   private final Agitator agitator = new Agitator();
   private final Intake intake = new Intake();
@@ -167,8 +168,22 @@ public class RobotContainer {
 
 
     // Climber Controls: POV for up/retract and continuous reach commands
-    CopilotCommandController.pov(0).whileTrue(climberLift.ClimberLiftUp());
-    CopilotCommandController.pov(180).whileTrue(climberLift.ClimberLiftRetract());//Need to bind winch commands.
+//     CopilotCommandController.pov(0).onTrue(
+//     new InstantCommand(
+//         () -> {
+//           climberWinchLeft.setWantedState(ClimberWinchLeft.State.EXTENDING);
+//           climberWinchRight.setWantedState(ClimberWinchRight.State.EXTENDING);
+//         },
+//         climberWinchLeft,
+//         climberWinchRight
+//     )
+// );
+
+//     CopilotCommandController.pov(180).whileTrue(
+//       new RunCommand (
+//         () -> climberWinchLeft.setWantedState(
+//           ClimberWinchLeft.State.RETRACTING, ClimberWinchRight.State.RETRACTING), climberWinchLeft, ClimberWinchRight)
+//     );
 
   }
 

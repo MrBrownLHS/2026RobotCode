@@ -8,123 +8,136 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.RelativeEncoder;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.utilities.Constants;
 
-/**
- * Subsystem that controls the hopper extension actuator and reads two
- * limit switches (in/out). Provides simple methods to extend, retract and
- * stop the actuator as well as query the limit switches.
- */
 public class Hopper extends SubsystemBase {
 
     public enum State {
-      IDLE,
-      EXTENDING,
-      RETRACTING
+        IDLE,
+        EXTENDING,
+        RETRACTING
     }
-  
-  private State currentState = State.IDLE;
 
-  private final SparkMax m_HopperMotor;
-  private final SparkMaxConfig hopperMotorConfig;
+    private State currentState = State.IDLE;
 
-  // Limit switches wired to DIO ports
-  private final DigitalInput limitIn;
-  private final DigitalInput limitOut;
+    private final SparkMax hopperMotor;
+    private final RelativeEncoder hopperEncoder;
 
-  public Hopper() {
-    // Motor and DIO IDs come from Constants (update to match wiring)
-    m_HopperMotor = new SparkMax(Constants.FuelSystemConstants.HOPPER_MOTOR_ID, MotorType.kBrushless);
-    
-    hopperMotorConfig = new SparkMaxConfig();
-    configureHopperMotor(m_HopperMotor, hopperMotorConfig);
-  
-    limitIn = new DigitalInput(Constants.FuelSystemConstants.HOPPER_LIMIT_IN_DIO);
-    limitOut = new DigitalInput(Constants.FuelSystemConstants.HOPPER_LIMIT_OUT_DIO);
-  }
+    // Single home (closed) limit switch
+    private final DigitalInput homeSwitch;
 
-  private void configureHopperMotor(SparkMax motor, SparkMaxConfig config){
-    config.idleMode(IdleMode.kBrake);
-    config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
-    config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
-    config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-  }
+    // Tunable values (default fallbacks)
+    private double extendSpeed = Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED; //Tune during testing
+    private double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED; //Tune during testing
+    private double openPosition = Constants.FuelSystemConstants.HOPPER_OPEN_POSITION; // rotations – tune this
 
+    public Hopper() {
 
+        hopperMotor = new SparkMax(
+            Constants.FuelSystemConstants.HOPPER_MOTOR_ID,
+            MotorType.kBrushless
+        );
 
-  public void setState(State newState) {
+        SparkMaxConfig config = new SparkMaxConfig();
+        config.idleMode(IdleMode.kBrake);
+        config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
+        config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
 
-    if (newState == State.EXTENDING && isHopperOutLimitPressed())
-        return;
+        hopperEncoder = hopperMotor.getEncoder();
+        hopperEncoder.setPosition(0);
 
-    if (newState == State.RETRACTING && isHopperInLimitPressed())
-        return;
+        homeSwitch = new DigitalInput(
+            Constants.FuelSystemConstants.HOPPER_HOME_SWITCH_DIO
+        );
 
-    currentState = newState;
-}
+        // SmartDashboard defaults
+        SmartDashboard.putNumber("Hopper Extend Speed", extendSpeed);
+        SmartDashboard.putNumber("Hopper Retract Speed", retractSpeed);
+        SmartDashboard.putNumber("Hopper Open Position", openPosition);
+    }
 
-  public State getState() {
-    return currentState;
-  }
+    /* =============================
+       Public State Control
+       ============================= */
 
-  /**
-   * Returns true when the "in" limit switch is pressed (hopper fully retracted).
-   * Note: wiring may be normally-closed or -open; invert the boolean if needed.
-   */
-  public boolean isHopperInLimitPressed() {
-    return !limitIn.get();
-  }
+    public void setState(State newState) {
+        currentState = newState;
+    }
 
-  /**
-   * Returns true when the "out" limit switch is pressed (hopper fully extended).
-   */
-  public boolean isHopperOutLimitPressed() {
-    return !limitOut.get();
-  }
+    public State getState() {
+        return currentState;
+    }
 
-  /**
-   * Convenience: true when either limit switch is pressed.
-   */
-  public boolean isAnyHopperLimitPressed() {
-    return isHopperInLimitPressed() || isHopperOutLimitPressed();
-  }
+    public void stop() {
+        currentState = State.IDLE;
+        hopperMotor.set(0);
+    }
 
-  /** Stop the hopper motor immediately. */
-  public void stop() {
-    m_HopperMotor.set(0.0);
-  }
+    /* =============================
+       Home Switch
+       ============================= */
 
+    public boolean isHomePressed() {
+        // Invert if wired normally closed
+        return !homeSwitch.get();
+    }
 
+    /* =============================
+       Periodic
+       ============================= */
 
+    @Override
+    public void periodic() {
 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-    switch (currentState) {
-      case IDLE:
-        m_HopperMotor.set(0.0);
-        break;
-      case EXTENDING:
-        // If out limit is hit, stop extending and return to IDLE
-        if (isHopperOutLimitPressed()) {
-          currentState = State.IDLE;
-          break;}
-        m_HopperMotor.set(Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED);
-        break;
-      case RETRACTING:
-        // If in limit is hit, stop retracting and return to IDLE
-        if (isHopperInLimitPressed()) {
-          currentState = State.IDLE;
-          break;
+        // Pull live tuning values
+        extendSpeed = SmartDashboard.getNumber("Hopper Extend Speed", extendSpeed);
+        retractSpeed = SmartDashboard.getNumber("Hopper Retract Speed", retractSpeed);
+        openPosition = SmartDashboard.getNumber("Hopper Open Position", openPosition);
+
+        double position = hopperEncoder.getPosition();
+
+        // Auto re-zero if home switch is pressed
+        if (isHomePressed()) {
+            hopperEncoder.setPosition(0);
         }
-        m_HopperMotor.set(Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED);
-        break;
-      } 
-      SmartDashboard.putString("Hopper State", currentState.toString());
-      SmartDashboard.putBoolean("Hopper In Limit", isHopperInLimitPressed());
-      SmartDashboard.putBoolean("Hopper Out Limit", isHopperOutLimitPressed());
-  }
+
+        switch (currentState) {
+
+            case IDLE:
+                hopperMotor.set(0);
+                break;
+
+            case EXTENDING:
+                if (position >= openPosition) {
+                    hopperMotor.set(0);
+                    currentState = State.IDLE;
+                } else {
+                    hopperMotor.set(extendSpeed);
+                }
+                break;
+
+            case RETRACTING:
+                if (position <= 0 || isHomePressed()) {
+                    hopperMotor.set(0);
+                    currentState = State.IDLE;
+                } else {
+                    hopperMotor.set(retractSpeed);
+                }
+                break;
+        }
+
+        /* =============================
+           Telemetry
+           ============================= */
+
+        SmartDashboard.putString("Hopper State", currentState.toString());
+        SmartDashboard.putNumber("Hopper Position", position);
+        SmartDashboard.putBoolean("Hopper Home Switch", isHomePressed());
+    }
 }
