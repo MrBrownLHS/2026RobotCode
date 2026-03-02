@@ -59,14 +59,19 @@ public class Constants {
   
   public static final class ClimberConstants {
         public static final int CLIMBER_WINCH_LEFT_MOTOR_ID = 19;
-        public static final double CLIMBER_LEFT_EXTEND_SPEED = 0.25; //Tune during testing
-        public static final double CLIMBER_LEFT_RETRACT_SPEED = -0.15; //Tune during testing
-        public static final double CLIMBER_LEFT_MAX_EXTENSION = 15.0; //Tune during testing
-
         public static final int CLIMBER_WINCH_RIGHT_MOTOR_ID = 20;
-        public static final double CLIMBER_RIGHT_EXTEND_SPEED = 0.25; //Tune during testing
-        public static final double CLIMBER_RIGHT_RETRACT_SPEED = -0.15; //Tune during testing
-        public static final double CLIMBER_RIGHT_MAX_EXTENSION = 15.0; //Tune during testing
+        
+
+    // DIO ports for per-side home limit switches
+        public static final int CLIMBER_LEFT_HOME_DIO = 1;
+        public static final int CLIMBER_RIGHT_HOME_DIO = 2;
+
+    // Maximum allowed mismatch (rotations) between left and right before faulting
+        public static final double CLIMBER_MISMATCH_TOLERANCE = 0.5; // rotations
+        public static final double CLIMBER_MIN_EXTENSION = 0.0; //Tune during testing
+        public static final double CLIMBER_MAX_EXTENSION = 15.0; //Tune during testing
+        public static final double CLIMBER_EXTEND_SPEED = 0.25; //Tune during testing
+        public static final double CLIMBER_RETRACT_SPEED = -0.15; //Tune during testing
    }
 
   

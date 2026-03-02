@@ -25,8 +25,7 @@ import frc.robot.commands.SwerveController;
 //import frc.robot.commands.AutoFuelLaunch;
 
 import frc.robot.subsystems.Swerve;
-//import frc.robot.subsystems.ClimberWinchLeft;
-//import frc.robot.subsystems.ClimberWinchRight;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.Kicker;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Launcher;
@@ -48,9 +47,8 @@ public class RobotContainer {
 
   // Subsystem instances created once and shared across commands
   
-  //private final ClimberWinchLeft climberWinchLeft = new ClimberWinchLeft();
-  //private final ClimberWinchRight climberWinchRight = new ClimberWinchRight();
-  private final Kicker kicker = new Kicker();
+  private final Climber climber = new Climber();
+    private final Kicker kicker = new Kicker();
   private final Agitator agitator = new Agitator();
   private final Intake intake = new Intake();
   private final Launcher launch = new Launcher();
@@ -168,22 +166,17 @@ public class RobotContainer {
 
 
     // Climber Controls: POV for up/retract and continuous reach commands
-//     CopilotCommandController.pov(0).onTrue(
-//     new InstantCommand(
-//         () -> {
-//           climberWinchLeft.setWantedState(ClimberWinchLeft.State.EXTENDING);
-//           climberWinchRight.setWantedState(ClimberWinchRight.State.EXTENDING);
-//         },
-//         climberWinchLeft,
-//         climberWinchRight
-//     )
-// );
+    CopilotCommandController.pov(0).onTrue(
+    new InstantCommand(
+        () -> climber.setState(
+          Climber.State.EXTENDING), climber)
+    );       
 
-//     CopilotCommandController.pov(180).whileTrue(
-//       new RunCommand (
-//         () -> climberWinchLeft.setWantedState(
-//           ClimberWinchLeft.State.RETRACTING, ClimberWinchRight.State.RETRACTING), climberWinchLeft, ClimberWinchRight)
-//     );
+    CopilotCommandController.pov(180).whileTrue(
+      new InstantCommand (
+        () -> climber.setState(
+          Climber.State.CLIMBING), climber)
+    );
 
   }
 
