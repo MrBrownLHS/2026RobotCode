@@ -10,7 +10,8 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
@@ -38,6 +39,8 @@ public class Climber extends SubsystemBase {
   // inversion depending on wiring (NC vs NO) — change logic if you see inverted behavior.
   private final DigitalInput leftHome = new DigitalInput(Constants.ClimberConstants.CLIMBER_LEFT_HOME_DIO);
   private final DigitalInput rightHome = new DigitalInput(Constants.ClimberConstants.CLIMBER_RIGHT_HOME_DIO);
+
+  private final ShuffleboardTab climberTab = Shuffleboard.getTab("Climber");
   
   /**
    * Create motors, encoders and apply basic configuration.
@@ -53,16 +56,14 @@ public class Climber extends SubsystemBase {
     leftConfig.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     leftConfig.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     leftConfig.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-    leftWinchMotor.configure(leftConfig, (com.revrobotics.spark.SparkBase.ResetMode) null,
-        (com.revrobotics.spark.SparkBase.PersistMode) null);
+    
 
     SparkMaxConfig rightConfig = new SparkMaxConfig();
     rightConfig.idleMode(IdleMode.kBrake);
     rightConfig.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     rightConfig.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     rightConfig.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-    rightWinchMotor.configure(rightConfig, (com.revrobotics.spark.SparkBase.ResetMode) null,
-        (com.revrobotics.spark.SparkBase.PersistMode) null);
+    
 
     // Encoders for feedback
     leftWinchEncoder = leftWinchMotor.getEncoder();
@@ -71,6 +72,16 @@ public class Climber extends SubsystemBase {
     // Ensure motors start stopped
     leftWinchMotor.set(0.0);
     rightWinchMotor.set(0.0);
+
+    climberTab.addString("Climber State", () -> currentState.toString());
+    climberTab.addBoolean("Climber Left Home", this::isLeftHomePressed);
+    climberTab.addBoolean("Climber Right Home", this::isRightHomePressed);
+    climberTab.addNumber("Climber Left Pos", this::getLeftPosition);
+    climberTab.addNumber("Climber Right Pos", this::getRightPosition);
+    climberTab.addNumber("Climber Pos Avg", this::getAveragePosition);
+    climberTab.addBoolean("Climber Fault/Mismatch",
+        () -> Math.abs(getLeftPosition() - getRightPosition())
+                > Constants.ClimberConstants.CLIMBER_MISMATCH_TOLERANCE);
   }
 
   /** Set the climber state. Call this from commands or higher-level coordinators. */
@@ -189,17 +200,6 @@ public class Climber extends SubsystemBase {
     if (mismatch > Constants.ClimberConstants.CLIMBER_MISMATCH_TOLERANCE) {
       stop();
       currentState = State.IDLE;
-      SmartDashboard.putBoolean("Climber Fault/Mismatch", true);
-    } else {
-      SmartDashboard.putBoolean("Climber Fault/Mismatch", false);
     }
-
-    // Telemetry for tuning/debugging
-    SmartDashboard.putString("Climber State", currentState.toString());
-    SmartDashboard.putBoolean("Climber Left Home", isLeftHomePressed());
-    SmartDashboard.putBoolean("Climber Right Home", isRightHomePressed());
-    SmartDashboard.putNumber("Climber Left Pos", getLeftPosition());
-    SmartDashboard.putNumber("Climber Right Pos", getRightPosition());
-    SmartDashboard.putNumber("Climber Pos Avg", getAveragePosition());
   }
 }

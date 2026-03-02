@@ -10,9 +10,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 
 public class Kicker extends SubsystemBase {
@@ -28,23 +28,20 @@ public class Kicker extends SubsystemBase {
   private State currentState = State.IDLE;
 
   private final SparkMax m_Kicker;
-  private SparkMaxConfig kickerMotorConfig;
+  private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
  
   /** Creates a new Index. */
   public Kicker() {
-    m_Kicker = new SparkMax(Constants.FuelSystemConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
-
-    kickerMotorConfig = new SparkMaxConfig();
-
-    configureKickerMotor(m_Kicker, kickerMotorConfig);
-  }
-
-  private void configureKickerMotor(SparkMax motor, SparkMaxConfig config){
-    config.idleMode(IdleMode.kBrake);
+    m_Kicker = new SparkMax(
+      Constants.FuelSystemConstants.KICKER_MOTOR_ID, MotorType.kBrushless);
+ 
+    SparkMaxConfig config = new SparkMaxConfig();
+    config.idleMode(IdleMode.kCoast);
     config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-     
+    
+    fuelSystemTab.addString("Kicker State", () -> currentState.toString());
   }
 
   public void setState(State newState) {
@@ -77,6 +74,5 @@ public class Kicker extends SubsystemBase {
         m_Kicker.set(-Constants.FuelSystemConstants.KICKER_COLLECT_SPEED);
         break;
       }
-    SmartDashboard.putString("Kicker State", currentState.toString());
   }
 }

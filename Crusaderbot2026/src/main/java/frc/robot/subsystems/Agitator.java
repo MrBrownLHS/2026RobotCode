@@ -9,7 +9,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class Agitator extends SubsystemBase {
@@ -23,23 +25,22 @@ public class Agitator extends SubsystemBase {
     private State currentState = State.IDLE;
     
     private final SparkMax m_Agitator;
-    private SparkMaxConfig agitatorMotorConfig;
+    
+
+    private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
 
      /** Creates a new Agitator. */
      public Agitator() {
        m_Agitator = new SparkMax(Constants.FuelSystemConstants.AGITATOR_MOTOR_ID, MotorType.kBrushless);
- 
-       agitatorMotorConfig = new SparkMaxConfig();
- 
-       configureAgitatorMotor(m_Agitator, agitatorMotorConfig);
-     }
- 
-     private void configureAgitatorMotor(SparkMax motor, SparkMaxConfig config){
+      
+       SparkMaxConfig config = new SparkMaxConfig();
        config.idleMode(IdleMode.kBrake);
        config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_550);
        config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_550);
        config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
        
+      fuelSystemTab.addString("Agitator State", () -> currentState.toString());
+
      }
 
       public void setState(State newState) {
@@ -65,7 +66,5 @@ public class Agitator extends SubsystemBase {
         m_Agitator.set(Constants.FuelSystemConstants.AGITATOR_REVERSE_SPEED);
         break;
     }
-
-    SmartDashboard.putString("Agitator State", currentState.toString());
   }
 }

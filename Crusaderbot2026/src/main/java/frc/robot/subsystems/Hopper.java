@@ -9,9 +9,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
@@ -35,7 +36,11 @@ public class Hopper extends SubsystemBase {
     // Tunable values (default fallbacks)
     private double extendSpeed = Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED; //Tune during testing
     private double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED; //Tune during testing
-    private double openPosition = Constants.FuelSystemConstants.HOPPER_OPEN_POSITION; // rotations – tune this
+    private double openPosition = Constants.FuelSystemConstants.HOPPER_OPEN_POSITION; // rotations – tune 
+    
+    private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
+
+     /** Creates a new Hopper. */
 
     public Hopper() {
 
@@ -56,10 +61,12 @@ public class Hopper extends SubsystemBase {
             Constants.FuelSystemConstants.HOPPER_HOME_SWITCH_DIO
         );
 
-        // SmartDashboard defaults
-        SmartDashboard.putNumber("Hopper Extend Speed", extendSpeed);
-        SmartDashboard.putNumber("Hopper Retract Speed", retractSpeed);
-        SmartDashboard.putNumber("Hopper Open Position", openPosition);
+            
+        fuelSystemTab.addString("Hopper State", () -> currentState.toString());
+        fuelSystemTab.addBoolean("Hopper Home Switch", this::isHomePressed);
+        fuelSystemTab.addNumber("Hopper Position", hopperEncoder::getPosition);
+
+      
     }
 
     /* =============================
@@ -95,12 +102,7 @@ public class Hopper extends SubsystemBase {
     @Override
     public void periodic() {
 
-        // Pull live tuning values
-        extendSpeed = SmartDashboard.getNumber("Hopper Extend Speed", extendSpeed);
-        retractSpeed = SmartDashboard.getNumber("Hopper Retract Speed", retractSpeed);
-        openPosition = SmartDashboard.getNumber("Hopper Open Position", openPosition);
-
-        double position = hopperEncoder.getPosition();
+      double position = hopperEncoder.getPosition();
 
         // Auto re-zero if home switch is pressed
         if (isHomePressed()) {
@@ -130,14 +132,6 @@ public class Hopper extends SubsystemBase {
                     hopperMotor.set(retractSpeed);
                 }
                 break;
-        }
-
-        /* =============================
-           Telemetry
-           ============================= */
-
-        SmartDashboard.putString("Hopper State", currentState.toString());
-        SmartDashboard.putNumber("Hopper Position", position);
-        SmartDashboard.putBoolean("Hopper Home Switch", isHomePressed());
+       }      
     }
 }

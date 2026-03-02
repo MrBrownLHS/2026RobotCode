@@ -5,13 +5,15 @@
 
 package frc.robot.subsystems;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 
 
@@ -27,23 +29,21 @@ public class Intake extends SubsystemBase {
   private State currentState = State.IDLE;
 
   private final SparkMax m_Intake;
-  private SparkMaxConfig intakeMotorConfig;
+
+  private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
+  
  
   /** Creates a new Intake. */
   public Intake() {
     m_Intake = new SparkMax(Constants.FuelSystemConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
 
-    intakeMotorConfig = new SparkMaxConfig();
-
-    configureIntakeMotor(m_Intake, intakeMotorConfig);
-  }
-
-  private void configureIntakeMotor(SparkMax motor, SparkMaxConfig config){
-    config.idleMode(IdleMode.kBrake);
+    SparkMaxConfig config = new SparkMaxConfig();
+    config.idleMode(IdleMode.kCoast);
     config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
     
+    fuelSystemTab.addString("Intake State", () -> currentState.toString());
   }
 
   public void setState(State newState) {
@@ -72,6 +72,6 @@ public class Intake extends SubsystemBase {
         m_Intake.set(-Constants.FuelSystemConstants.INTAKE_MOTOR_COLLECT_SPEED);
         break;
       }
-    SmartDashboard.putString("Intake State", currentState.toString());
+    
   }
 }

@@ -33,8 +33,11 @@ public class Constants {
     //Launcher
         public static final int LAUNCH_MOTOR_1_ID = 14;
         //public static final int LAUNCH_MOTOR_2_ID = 20; //Do we need a second Launcher Motor?
-        public static final double LAUNCH_MOTOR_LAUNCH_SPEED = 0.75; //Tune during testing
-        public static final double LAUNCH_MOTOR_COLLECT_SPEED = 0.25; //Tune during testing
+        public static final double LAUNCH_FAR_RPM = 3000; // Tune
+        public static final double LAUNCH_CLOSE_RPM = 2000; // Tune
+        public static final double LAUNCH_COLLECT_RPM = 1500; // Tune
+        public static final double LAUNCH_RPM_TOLERANCE = 150; // Tune
+
         public static final double LAUNCH_P = 0.001;
         public static final double LAUNCH_I = 0.0;
         public static final double LAUNCH_D = 0.0;

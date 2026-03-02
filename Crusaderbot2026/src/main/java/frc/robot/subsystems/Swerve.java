@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.MathUtil;
 //import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -19,9 +20,11 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
+
 
 import frc.robot.utilities.Constants;
 
@@ -40,11 +43,15 @@ public class Swerve extends SubsystemBase {
 
     private Field2d field;
 
+    private final ShuffleboardTab swerveTab = Shuffleboard.getTab("Swerve");
+
     public Swerve() {
         gyroscope = new Pigeon2(Constants.gyroID);
         gyroAngle = gyroscope.getYaw();
         BaseStatusSignal.setUpdateFrequencyForAll(50.0, gyroAngle);
         resetHeading();
+
+       
 
         swerveModules = new NEOSwerveModule[] {
             new NEOSwerveModule(0, Constants.ModuleConstants.FrontLeftModule.constants),
@@ -57,6 +64,15 @@ public class Swerve extends SubsystemBase {
         swerveOdometry = new SwerveDriveOdometry(driveKinematics, getYawRotation2d(), getSwerveModulePositions());
         field = new Field2d();
         resetModulesToAbsolute();
+
+        swerveTab.addString("Swerve Module States", () -> {
+            StringBuilder statesString = new StringBuilder();
+            for(NEOSwerveModule module : swerveModules) {
+                SwerveModuleState state = module.getSwerveModuleState();
+                statesString.append(String.format("Module %d: Angle=%.2f deg, Speed=%.2f m/s\n", module.moduleNumber, state.angle.getDegrees(), state.speedMetersPerSecond));
+            }
+            return statesString.toString();
+        });
     }
 
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
@@ -199,7 +215,5 @@ public class Swerve extends SubsystemBase {
 
         };
 
-        SmartDashboard.putNumberArray("MeasuredSwerveStates", measuredStates);
-        SmartDashboard.putNumberArray("DesiredSwerveStates", desiredStates);
     }
 }

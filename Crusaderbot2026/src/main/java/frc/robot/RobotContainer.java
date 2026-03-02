@@ -4,12 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 // WPILib imports for controller handling, commands, dashboards and utilities
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,6 +20,9 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.UsbCamera;
 
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
@@ -48,13 +53,16 @@ public class RobotContainer {
   // Subsystem instances created once and shared across commands
   
   private final Climber climber = new Climber();
-    private final Kicker kicker = new Kicker();
+  private final Kicker kicker = new Kicker();
   private final Agitator agitator = new Agitator();
   private final Intake intake = new Intake();
   private final Launcher launch = new Launcher();
   private final Hopper hopper = new Hopper();
+
   // SuperSystem coordinates states across these shared subsystems
   private final SuperSystem superSystem = new SuperSystem(launch, kicker, intake, hopper, agitator);
+
+  
   
 
   // Controller axis mappings (populated from Constants)
@@ -84,6 +92,12 @@ public class RobotContainer {
         
     autoChooser = new SendableChooser<>();
     SmartDashboard.putData("Auto Mode", autoChooser);
+
+    UsbCamera camera = CameraServer.startAutomaticCapture(0);
+        camera.setResolution(640, 480);
+        camera.setFPS(30);
+      
+    Shuffleboard.getTab("Cameras").add(camera);
         
     // Map driver buttons to JoystickButton wrappers using constants
     resetHeading = new JoystickButton(DriverController, Constants.ControllerRawButtons.XboxController.Button.kY.value);
@@ -107,8 +121,10 @@ public class RobotContainer {
 
 
     // Configure button bindings for control mappings
-    configureBindings(); 
+    configureBindings();
   }
+
+   
 
   private double applyDeadband(double value, double deadband) {
     if (Math.abs(value) < deadband) {
