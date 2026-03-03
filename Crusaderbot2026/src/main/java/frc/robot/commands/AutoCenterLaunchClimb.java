@@ -5,8 +5,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Climber;
@@ -26,22 +28,37 @@ public class AutoCenterLaunchClimb extends SequentialCommandGroup {
             new WaitCommand(0.1), // small delay to ensure rotation completes
             new SequentialCommandGroup(
                 new WaitCommand(0.1), // optional short pause
-                new RunCommand(() -> launcher.setState(Launcher.State.LAUNCH_CLOSE)),
-                new WaitCommand(5.0), // spin-up time
-                new RunCommand(() -> launcher.setState(Launcher.State.IDLE))
+                new StartEndCommand(
+                    () -> launcher.setState(Launcher.State.LAUNCH_CLOSE),
+                    () -> launcher.setState(Launcher.State.IDLE)
+                ).withTimeout(5.0)
             ),
 
             //Drive forward ~4 ft (~1.22 meters)
             new AutoSwerve(swerve, 1.22, 0, driveSpeed, 0.0, slowDownDistance, false),
 
-            //Extend the climber
-            new RunCommand(() -> climber.setState(Climber.State.EXTENDING)),
+            //Extend the climber and wait until it finishes extending before driving again
+            new ParallelRaceGroup(
+                // Hold the climber in EXTENDING state while this group is active; when the
+                // wait condition becomes true the race ends and the end() lambda resets state.
+                new StartEndCommand(
+                    () -> climber.setState(Climber.State.EXTENDING),
+                    () -> climber.setState(Climber.State.IDLE),
+                    climber
+                ),
+                // Wait until the climber's internal state machine reaches IDLE (finished extending)
+                new WaitUntilCommand(() -> climber.getState() == Climber.State.IDLE)
+            ),
 
             //Drive backward ~6 in (~0.15 meters)
-            new AutoSwerve(swerve, 1.22 - 0.15, 0, driveSpeed, 0.0, slowDownDistance, false),
-
+              new AutoSwerve(swerve, 1.22 - 0.15, 0, driveSpeed, 0.0, slowDownDistance, false),
+            // wait until we are close to the target position (with some tolerance)
+              new WaitUntilCommand(() -> swerve.getPose().getTranslation().getX() <= 1.22 - 0.15 + 0.05), 
             //Retract the climber
-            new RunCommand(() -> climber.setState(Climber.State.CLIMBING))
+              new StartEndCommand(
+                () -> climber.setState(Climber.State.CLIMBING),
+                () -> climber.setState(Climber.State.IDLE)
+              ).withTimeout(2.0)
         );
     }
 }
