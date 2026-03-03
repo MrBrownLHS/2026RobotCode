@@ -180,6 +180,20 @@ public class RobotContainer {
           SuperSystem.WantedState.REVERSE), superSystem)
     );
 
+    CopilotCommandController.pov(90).whileTrue(
+      new RunCommand (
+        () -> hopper.setState(
+          Hopper.State.EXTENDING), hopper)
+    );
+
+    CopilotCommandController.pov(270).whileTrue(
+      new RunCommand (
+        () -> hopper.setState(
+          Hopper.State.RETRACTING), hopper)
+    );
+
+      
+
 
     // Climber Controls: POV for up/retract and continuous reach commands
     CopilotCommandController.pov(0).onTrue(

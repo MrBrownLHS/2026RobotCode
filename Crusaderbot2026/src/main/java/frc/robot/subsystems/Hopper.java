@@ -11,6 +11,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,6 +54,11 @@ public class Hopper extends SubsystemBase {
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
         config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
+
+        hopperMotor.configure(
+              config,
+              SparkBase.ResetMode.kResetSafeParameters,
+              SparkBase.PersistMode.kPersistParameters);
 
         hopperEncoder = hopperMotor.getEncoder();
         hopperEncoder.setPosition(0);

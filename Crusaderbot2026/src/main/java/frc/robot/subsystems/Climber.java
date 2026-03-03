@@ -4,6 +4,7 @@
 
 package frc.robot.subsystems;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -57,6 +58,10 @@ public class Climber extends SubsystemBase {
     leftConfig.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     leftConfig.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
     
+    leftWinchMotor.configure(
+        leftConfig,
+        SparkBase.ResetMode.kResetSafeParameters,
+        SparkBase.PersistMode.kPersistParameters);
 
     SparkMaxConfig rightConfig = new SparkMaxConfig();
     rightConfig.idleMode(IdleMode.kBrake);
@@ -64,6 +69,10 @@ public class Climber extends SubsystemBase {
     rightConfig.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     rightConfig.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
     
+    rightWinchMotor.configure(
+        rightConfig,
+        SparkBase.ResetMode.kResetSafeParameters,
+        SparkBase.PersistMode.kPersistParameters);
 
     // Encoders for feedback
     leftWinchEncoder = leftWinchMotor.getEncoder();

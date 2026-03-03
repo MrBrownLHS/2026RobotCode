@@ -14,6 +14,7 @@ import frc.robot.utilities.Constants;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import com.revrobotics.spark.SparkBase;
 
 
 
@@ -43,6 +44,11 @@ public class Intake extends SubsystemBase {
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
     
+    m_Intake.configure(
+        config,
+        SparkBase.ResetMode.kResetSafeParameters,
+        SparkBase.PersistMode.kPersistParameters);
+
     fuelSystemTab.addString("Intake State", () -> currentState.toString());
   }
 

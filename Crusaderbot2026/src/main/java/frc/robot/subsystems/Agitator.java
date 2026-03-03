@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
@@ -31,7 +32,8 @@ public class Agitator extends SubsystemBase {
 
      /** Creates a new Agitator. */
      public Agitator() {
-       m_Agitator = new SparkMax(Constants.FuelSystemConstants.AGITATOR_MOTOR_ID, MotorType.kBrushless);
+       m_Agitator = new SparkMax(
+        Constants.FuelSystemConstants.AGITATOR_MOTOR_ID, MotorType.kBrushless);
       
        SparkMaxConfig config = new SparkMaxConfig();
        config.idleMode(IdleMode.kBrake);
@@ -39,6 +41,11 @@ public class Agitator extends SubsystemBase {
        config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_550);
        config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
        
+       m_Agitator.configure(
+        config,
+        SparkBase.ResetMode.kResetSafeParameters,
+        SparkBase.PersistMode.kPersistParameters);
+
       fuelSystemTab.addString("Agitator State", () -> currentState.toString());
 
      }

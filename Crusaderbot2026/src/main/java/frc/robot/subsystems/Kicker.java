@@ -13,6 +13,7 @@ import frc.robot.utilities.Constants;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import com.revrobotics.spark.SparkBase;
 
 
 public class Kicker extends SubsystemBase {
@@ -41,6 +42,11 @@ public class Kicker extends SubsystemBase {
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
     config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
     
+    m_Kicker.configure(
+      config,
+      SparkBase.ResetMode.kResetSafeParameters,
+      SparkBase.PersistMode.kPersistParameters);
+
     fuelSystemTab.addString("Kicker State", () -> currentState.toString());
   }
 

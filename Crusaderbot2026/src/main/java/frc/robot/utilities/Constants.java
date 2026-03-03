@@ -42,7 +42,7 @@ public class Constants {
         public static final double LAUNCH_I = 0.0;
         public static final double LAUNCH_D = 0.0;
         public static final double LAUNCH_KS = 0.84;
-        public static final double LAUNCH_KV = 0.103;
+        public static final double LAUNCH_KV = 0.003;
     //Kicker
         public static final int KICKER_MOTOR_ID = 15;
         public static final double KICKER_COLLECT_SPEED = 0.25; //Tune during testing
@@ -55,7 +55,7 @@ public class Constants {
     //Hopper
         public static final int HOPPER_MOTOR_ID = 17;
         public static final int HOPPER_HOME_SWITCH_DIO = 0;      
-        public static final double HOPPER_EXTEND_SPEED = 0.25; //Tune during testing
+        public static final double HOPPER_EXTEND_SPEED = 0.15; //Tune during testing
         public static final double HOPPER_RETRACT_SPEED = -0.15;
         public static final double HOPPER_OPEN_POSITION = 15.0; //Tune during testing
     }
