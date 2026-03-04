@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
 import frc.robot.utilities.Dashboard;
+import frc.robot.utilities.DriverHUD;
 
 public class Climber extends SubsystemBase {
 
@@ -209,5 +210,7 @@ public class Climber extends SubsystemBase {
     Dashboard.logString("Climber State", () -> currentState.toString());
     Dashboard.logBoolean("Climber Left Home", this::isLeftHomePressed);
     Dashboard.logBoolean("Climber Right Home", this::isRightHomePressed);
+
+    DriverHUD.logString("Climber State", () -> currentState.toString());
   }
 }

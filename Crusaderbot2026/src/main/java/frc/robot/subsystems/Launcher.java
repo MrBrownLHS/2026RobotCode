@@ -15,6 +15,7 @@ import com.revrobotics.RelativeEncoder;
 
 import frc.robot.utilities.Constants;
 import frc.robot.utilities.Dashboard;
+import frc.robot.utilities.DriverHUD;
 
 public class Launcher extends SubsystemBase {
 
@@ -72,7 +73,7 @@ public class Launcher extends SubsystemBase {
     return isAtSpeedLatched;
   }
 
-  private double getTargetRPM() {
+  public double getTargetRPM() {
     switch (currentState) {
       case LAUNCH_FAR:
         return Constants.FuelSystemConstants.LAUNCH_FAR_RPM;
@@ -140,5 +141,8 @@ public class Launcher extends SubsystemBase {
     Dashboard.logNumber("Launcher Actual RPM", () -> launcherEncoder.getVelocity());
     Dashboard.logNumber("Launcher RPM Error", () -> error);
     Dashboard.logString("Launcher State", () -> currentState.toString());
+
+    DriverHUD.logNumber("Launcher Target RPM", this::getTargetRPM);
+    DriverHUD.logBoolean("Launcher At Speed", this::atSpeed);
   }
 }

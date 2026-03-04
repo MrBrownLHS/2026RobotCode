@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.Dashboard;
+import frc.robot.utilities.DriverHUD;
 
 public class SuperSystem extends SubsystemBase {
   /** Creates a new SuperSystem. */
@@ -35,6 +36,11 @@ public class SuperSystem extends SubsystemBase {
 
   public void setWantedState(WantedState newWantedState) {
     wantedState = newWantedState;
+  }
+
+  /** Expose the current wanted state for dashboards and commands. */
+  public WantedState getWantedState() {
+    return wantedState;
   }
 
   @Override
@@ -76,5 +82,11 @@ public class SuperSystem extends SubsystemBase {
           break;
       }
     Dashboard.logString("SuperSystem Wanted State", () -> wantedState.toString());
+
+    DriverHUD.logString("SuperSystem State", () -> wantedState.toString());
+    DriverHUD.logString("Intake State", () -> intake.getState().toString());
+    DriverHUD.logString("Kicker State", () -> kicker.getState().toString());
+    DriverHUD.logString("Hopper State", () -> hopper.getState().toString());
+    DriverHUD.logString("Agitator State", () -> agitator.getState().toString());
   }
 }

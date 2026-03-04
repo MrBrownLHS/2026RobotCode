@@ -11,7 +11,6 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -41,6 +40,8 @@ import frc.robot.subsystems.Agitator;
 import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.utilities.Constants;
+import frc.robot.utilities.Dashboard;
+import frc.robot.utilities.DriverHUD;
 
 
 public class RobotContainer {
@@ -132,6 +133,11 @@ public class RobotContainer {
 
     // Configure button bindings for control mappings
     configureBindings();
+
+    DriverHUD.logSwerve(swerveSubsystem);
+    DriverHUD.logLauncher(launch);
+    DriverHUD.logSuperSystem(superSystem);
+    DriverHUD.logClimber(climber);
   }
 
    

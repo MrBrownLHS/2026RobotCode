@@ -22,6 +22,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.utilities.DriverHUD;
 
 
 
@@ -343,5 +344,21 @@ public class Swerve extends SubsystemBase {
                 () -> desired.speedMetersPerSecond
                     - measured.speedMetersPerSecond);
         }
+
+         // Pose and gyro
+    DriverHUD.logPose2d("Robot Pose", this::getPose);
+    DriverHUD.logNumber("Gyro Heading", this::getHeading);
+
+    // Swerve module measured vs desired states
+    double[] measuredHUDStates = new double[8];
+    double[] desiredHUDStates = new double[8];
+    for (int i = 0; i < swerveModules.length; i++) {
+        measuredHUDStates[i*2] = swerveModules[i].getSwerveModuleState().angle.getDegrees();
+        measuredHUDStates[i*2 + 1] = swerveModules[i].getSwerveModuleState().speedMetersPerSecond;
+        desiredHUDStates[i*2] = swerveModules[i].getDesiredState().angle.getDegrees();
+        desiredHUDStates[i*2 + 1] = swerveModules[i].getDesiredState().speedMetersPerSecond;
+    }
+    DriverHUD.logDoubleArray("Swerve Measured States", measuredHUDStates);
+    DriverHUD.logDoubleArray("Swerve Desired States", desiredHUDStates);
     }
 }
