@@ -1,8 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -15,6 +14,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 
 import frc.robot.utilities.Constants;
+import frc.robot.utilities.Dashboard;
 
 public class Launcher extends SubsystemBase {
 
@@ -26,21 +26,17 @@ public class Launcher extends SubsystemBase {
   }
 
   private State currentState = State.IDLE;
+  private State lastState = null;
 
   private final SparkMax launcherMotor;
   private final RelativeEncoder launcherEncoder;
   private final SparkClosedLoopController launcherController;
 
-  // Active setpoint tracking (prevents transient errors in atSpeed)
   private double currentSetpointRPM = 0.0;
+  private boolean isAtSpeedLatched = false;
 
-  // Tunable values (from Constants)
-  private final double launchFarRPM = Constants.FuelSystemConstants.LAUNCH_FAR_RPM;
-  private final double launchCloseRPM = Constants.FuelSystemConstants.LAUNCH_CLOSE_RPM;
-  private final double launchCollectRPM = Constants.FuelSystemConstants.LAUNCH_COLLECT_RPM;
-  private final double rpmTolerance = Constants.FuelSystemConstants.LAUNCH_RPM_TOLERANCE;
-
-  private final ShuffleboardTab fuelTab = Shuffleboard.getTab("Fuel System");
+  private final double rpmTolerance =
+      Constants.FuelSystemConstants.LAUNCH_RPM_TOLERANCE;
 
   public Launcher() {
 
@@ -50,9 +46,7 @@ public class Launcher extends SubsystemBase {
 
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(IdleMode.kCoast);
-    config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
-    config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
-    config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
+    config.inverted(true);
 
     config.closedLoop
         .pid(
@@ -61,7 +55,6 @@ public class Launcher extends SubsystemBase {
             Constants.FuelSystemConstants.LAUNCH_D)
         .outputRange(-1.0, 1.0);
 
-    // APPLY CONFIGURATION (CRITICAL)
     launcherMotor.configure(
         config,
         SparkBase.ResetMode.kResetSafeParameters,
@@ -69,46 +62,24 @@ public class Launcher extends SubsystemBase {
 
     launcherEncoder = launcherMotor.getEncoder();
     launcherController = launcherMotor.getClosedLoopController();
-
-    // Explicit velocity units (RPM by default — no conversion needed)
-
-    // Ensure motor starts stopped in velocity mode
-    launcherController.setReference(0.0, ControlType.kVelocity, ClosedLoopSlot.kSlot0, 0.0);
-    currentSetpointRPM = 0.0;
-
-    // Telemetry (created once — never in periodic)
-    fuelTab.addString("Launcher State", () -> currentState.toString());
-    fuelTab.addNumber("Launcher Target RPM", () -> currentSetpointRPM);
-    fuelTab.addNumber("Launcher Actual RPM", launcherEncoder::getVelocity);
-    fuelTab.addNumber("Launcher Error",
-        () -> currentSetpointRPM - launcherEncoder.getVelocity());
-    fuelTab.addBoolean("Launcher At Speed", this::atSpeed);
-    fuelTab.addNumber("Launcher Output %", launcherMotor::getAppliedOutput);
-    fuelTab.addNumber("Launcher Bus Voltage", launcherMotor::getBusVoltage);
   }
 
   public void setState(State state) {
     currentState = state;
   }
 
-  public State getState() {
-    return currentState;
-  }
-
   public boolean atSpeed() {
-    return Math.abs(currentSetpointRPM - launcherEncoder.getVelocity())
-        < rpmTolerance
-        && currentSetpointRPM > 0.0;  // Prevent "true at idle"
+    return isAtSpeedLatched;
   }
 
   private double getTargetRPM() {
     switch (currentState) {
       case LAUNCH_FAR:
-        return launchFarRPM;
+        return Constants.FuelSystemConstants.LAUNCH_FAR_RPM;
       case LAUNCH_CLOSE:
-        return launchCloseRPM;
+        return Constants.FuelSystemConstants.LAUNCH_CLOSE_RPM;
       case LAUNCH_COLLECT:
-        return launchCollectRPM;
+        return Constants.FuelSystemConstants.LAUNCH_COLLECT_RPM;
       default:
         return 0.0;
     }
@@ -117,25 +88,57 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
 
-    double targetRPM = getTargetRPM();
+    // Only update motor if state changed
+    if (currentState != lastState) {
 
-    if (targetRPM == 0.0) {
-      launcherController.setReference(0.0, ControlType.kVelocity);
-      currentSetpointRPM = 0.0;
-      return;
+      double targetRPM = getTargetRPM();
+      currentSetpointRPM = targetRPM;
+
+      if (targetRPM == 0.0) {
+        launcherController.setReference(0.0, ControlType.kVelocity);
+        isAtSpeedLatched = false;
+      } else {
+
+        double ff =
+            Constants.FuelSystemConstants.LAUNCH_KS * Math.signum(targetRPM)
+            + Constants.FuelSystemConstants.LAUNCH_KV * targetRPM;
+
+        launcherController.setReference(
+            targetRPM,
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot0,
+            ff);
+
+        isAtSpeedLatched = false; // reset latch when new shot requested
+      }
+
+      lastState = currentState;
     }
 
-    // Feedforward in volts
-    // IMPORTANT: kV must be volts per RPM
-    double ff = Constants.FuelSystemConstants.LAUNCH_KS * Math.signum(targetRPM)
-        + Constants.FuelSystemConstants.LAUNCH_KV * targetRPM;
+    // --- Stable atSpeed logic (with hysteresis) ---
 
-    launcherController.setReference(
-        targetRPM,
-        ControlType.kVelocity,
-        ClosedLoopSlot.kSlot0,
-        ff);
+    double error = currentSetpointRPM - launcherEncoder.getVelocity();
 
-    currentSetpointRPM = targetRPM;
+    if (currentSetpointRPM > 0.0) {
+
+      // Tight tolerance to latch true
+      if (!isAtSpeedLatched && Math.abs(error) < rpmTolerance) {
+        isAtSpeedLatched = true;
+      }
+
+      // Wider tolerance to unlatch
+      if (isAtSpeedLatched && Math.abs(error) > rpmTolerance * 2.0) {
+        isAtSpeedLatched = false;
+      }
+
+    } else {
+      isAtSpeedLatched = false;
+    }
+  
+    Dashboard.logBoolean("Launcher At Speed", () -> isAtSpeedLatched);
+    Dashboard.logNumber("Launcher Target RPM", () -> currentSetpointRPM);
+    Dashboard.logNumber("Launcher Actual RPM", () -> launcherEncoder.getVelocity());
+    Dashboard.logNumber("Launcher RPM Error", () -> error);
+    Dashboard.logString("Launcher State", () -> currentState.toString());
   }
 }

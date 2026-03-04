@@ -12,12 +12,12 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
-//import com.revrobotics.spark.config.ClosedLoopConfig;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
-//import com.revrobotics.spark.SparkBase.PersistMode;
-//import com.revrobotics.spark.SparkBase.ResetMode;
+
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
@@ -93,7 +93,7 @@ public class NEOSwerveModule {
         config.closedLoop.positionWrappingEnabled(true);
         config.closedLoop.positionWrappingInputRange(0, 360);
         config.voltageCompensation(Constants.ModuleConstants.voltageCompensation);
-        //steeringMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        steeringMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         resetToAbsolute();
     }
 
@@ -107,7 +107,7 @@ public class NEOSwerveModule {
         config.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder);
         config.closedLoop.pid(Constants.ModuleConstants.drivekP, Constants.ModuleConstants.drivekI, Constants.ModuleConstants.drivekD);
         config.voltageCompensation(Constants.ModuleConstants.voltageCompensation);
-        //driveMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        driveMotor.configure(config, SparkBase.ResetMode.kResetSafeParameters, SparkBase.PersistMode.kPersistParameters);
         driveEncoder.setPosition(0.0);
     }
 
@@ -147,15 +147,21 @@ public class NEOSwerveModule {
     public void onDisabled() {
         var config = new SparkMaxConfig();
         config.idleMode(Constants.SwerveConstants.disabledNeutralMode ? IdleMode.kCoast : IdleMode.kBrake);
-        //driveMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        //steeringMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        driveMotor.configure(
+            config, 
+            SparkBase.ResetMode.kNoResetSafeParameters, 
+            SparkBase.PersistMode.kNoPersistParameters);
+        steeringMotor.configure(
+            config, 
+            SparkBase.ResetMode.kNoResetSafeParameters, 
+            SparkBase.PersistMode.kNoPersistParameters);
     }
 
     public void onEnabled() {
         var config = new SparkMaxConfig();
         config.idleMode(Constants.SwerveConstants.activeNeutralMode ? IdleMode.kCoast : IdleMode.kBrake);
-        //driveMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        //steeringMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        driveMotor.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
+        steeringMotor.configure(config, SparkBase.ResetMode.kNoResetSafeParameters, SparkBase.PersistMode.kNoPersistParameters);
     }
 
     private void setSpeed(SwerveModuleState desiredState, boolean isOpenLoop) {
@@ -174,7 +180,7 @@ public class NEOSwerveModule {
             steeringEncoder.setPosition(desiredState.angle.getDegrees());
         }
 
-        // lastAngle = angle;
+        lastAngle = desiredState.angle;
     }
 
     public void setDesiredState(SwerveModuleState desiredState, boolean isOpenLoop) {

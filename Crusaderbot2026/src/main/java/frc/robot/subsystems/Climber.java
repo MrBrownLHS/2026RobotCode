@@ -11,11 +11,11 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
+import frc.robot.utilities.Dashboard;
 
 public class Climber extends SubsystemBase {
 
@@ -41,7 +41,7 @@ public class Climber extends SubsystemBase {
   private final DigitalInput leftHome = new DigitalInput(Constants.ClimberConstants.CLIMBER_LEFT_HOME_DIO);
   private final DigitalInput rightHome = new DigitalInput(Constants.ClimberConstants.CLIMBER_RIGHT_HOME_DIO);
 
-  private final ShuffleboardTab climberTab = Shuffleboard.getTab("Climber");
+ 
   
   /**
    * Create motors, encoders and apply basic configuration.
@@ -82,15 +82,6 @@ public class Climber extends SubsystemBase {
     leftWinchMotor.set(0.0);
     rightWinchMotor.set(0.0);
 
-    climberTab.addString("Climber State", () -> currentState.toString());
-    climberTab.addBoolean("Climber Left Home", this::isLeftHomePressed);
-    climberTab.addBoolean("Climber Right Home", this::isRightHomePressed);
-    climberTab.addNumber("Climber Left Pos", this::getLeftPosition);
-    climberTab.addNumber("Climber Right Pos", this::getRightPosition);
-    climberTab.addNumber("Climber Pos Avg", this::getAveragePosition);
-    climberTab.addBoolean("Climber Fault/Mismatch",
-        () -> Math.abs(getLeftPosition() - getRightPosition())
-                > Constants.ClimberConstants.CLIMBER_MISMATCH_TOLERANCE);
   }
 
   /** Set the climber state. Call this from commands or higher-level coordinators. */
@@ -210,5 +201,13 @@ public class Climber extends SubsystemBase {
       stop();
       currentState = State.IDLE;
     }
+
+    Dashboard.logNumber("Climber Left Position", () -> getLeftPosition());
+    Dashboard.logNumber("Climber Average Position", () -> getAveragePosition());
+    Dashboard.logNumber("Climber Right Position", () -> getRightPosition());
+    Dashboard.logNumber("Climber Mismatch", () -> mismatch);
+    Dashboard.logString("Climber State", () -> currentState.toString());
+    Dashboard.logBoolean("Climber Left Home", this::isLeftHomePressed);
+    Dashboard.logBoolean("Climber Right Home", this::isRightHomePressed);
   }
 }

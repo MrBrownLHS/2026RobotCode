@@ -10,8 +10,7 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import frc.robot.utilities.Dashboard;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
@@ -26,9 +25,6 @@ public class Agitator extends SubsystemBase {
     private State currentState = State.IDLE;
     
     private final SparkMax m_Agitator;
-    
-
-    private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
 
      /** Creates a new Agitator. */
      public Agitator() {
@@ -46,7 +42,6 @@ public class Agitator extends SubsystemBase {
         SparkBase.ResetMode.kResetSafeParameters,
         SparkBase.PersistMode.kPersistParameters);
 
-      fuelSystemTab.addString("Agitator State", () -> currentState.toString());
 
      }
 
@@ -73,5 +68,7 @@ public class Agitator extends SubsystemBase {
         m_Agitator.set(Constants.FuelSystemConstants.AGITATOR_REVERSE_SPEED);
         break;
     }
+
+    Dashboard.logString("Agitator State", () -> currentState.toString());
   }
 }

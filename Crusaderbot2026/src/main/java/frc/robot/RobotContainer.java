@@ -23,7 +23,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-
+import frc.robot.commands.LaunchCloseCommand;
+import frc.robot.commands.LaunchFarCommand;
+import frc.robot.commands.StopAllCommand;
+import frc.robot.commands.CollectCommand;
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
 
@@ -62,6 +65,11 @@ public class RobotContainer {
   // SuperSystem coordinates states across these shared subsystems
   private final SuperSystem superSystem = new SuperSystem(launch, kicker, intake, hopper, agitator);
 
+  private final LaunchFarCommand launchFarCommand = new LaunchFarCommand(superSystem, launch);
+  private final LaunchCloseCommand launchCloseCommand = new LaunchCloseCommand(superSystem, launch);
+  private final StopAllCommand stopAllCommand = new StopAllCommand(superSystem);
+  private final CollectCommand collectCommand = new CollectCommand(superSystem, launch);
+
   
   
 
@@ -91,13 +99,13 @@ public class RobotContainer {
     DataLogManager.log("Robot Initialized");
         
     autoChooser = new SendableChooser<>();
-    SmartDashboard.putData("Auto Mode", autoChooser);
+    
 
     UsbCamera camera = CameraServer.startAutomaticCapture(0);
         camera.setResolution(640, 480);
         camera.setFPS(30);
       
-    Shuffleboard.getTab("Cameras").add(camera);
+    
         
     // Map driver buttons to JoystickButton wrappers using constants
     resetHeading = new JoystickButton(DriverController, Constants.ControllerRawButtons.XboxController.Button.kY.value);
@@ -119,6 +127,8 @@ public class RobotContainer {
             () -> robotCentric.getAsBoolean()) // lambda probably not needed but why not
     );
 
+
+    
 
     // Configure button bindings for control mappings
     configureBindings();
@@ -150,35 +160,14 @@ public class RobotContainer {
     );
 
     // Intake/Index Controls: co-pilot A runs all intake/index/launch collect
-    CopilotCommandController.a().whileTrue(
-      new RunCommand (
-        () -> superSystem.setWantedState(
-          SuperSystem.WantedState.LAUNCH_FAR), superSystem)
-    );
+    CopilotCommandController.a().whileTrue(launchFarCommand);
     
-    CopilotCommandController.b().whileTrue(
-      new RunCommand (
-        () -> superSystem.setWantedState(
-          SuperSystem.WantedState.LAUNCH_CLOSE), superSystem)
-    );
+    CopilotCommandController.b().whileTrue(launchCloseCommand);
+    
+    CopilotCommandController.x().onTrue(stopAllCommand);
 
-    CopilotCommandController.x().onTrue(
-      new RunCommand (
-        () -> superSystem.setWantedState(
-          SuperSystem.WantedState.IDLE), superSystem)
-    );
+    CopilotCommandController.rightBumper().whileTrue(collectCommand);
 
-    CopilotCommandController.rightBumper().whileTrue(
-      new RunCommand (
-        () -> superSystem.setWantedState(
-          SuperSystem.WantedState.COLLECT), superSystem)
-    );
-
-    CopilotCommandController.leftBumper().whileTrue(
-      new RunCommand (
-        () -> superSystem.setWantedState(
-          SuperSystem.WantedState.REVERSE), superSystem)
-    );
 
     CopilotCommandController.pov(90).whileTrue(
       new RunCommand (

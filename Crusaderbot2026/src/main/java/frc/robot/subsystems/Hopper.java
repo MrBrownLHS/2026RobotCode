@@ -9,14 +9,13 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
+import frc.robot.utilities.Dashboard;
 
 public class Hopper extends SubsystemBase {
 
@@ -39,7 +38,7 @@ public class Hopper extends SubsystemBase {
     private double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED; //Tune during testing
     private double openPosition = Constants.FuelSystemConstants.HOPPER_OPEN_POSITION; // rotations – tune 
     
-    private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
+
 
      /** Creates a new Hopper. */
 
@@ -66,11 +65,6 @@ public class Hopper extends SubsystemBase {
         homeSwitch = new DigitalInput(
             Constants.FuelSystemConstants.HOPPER_HOME_SWITCH_DIO
         );
-
-            
-        fuelSystemTab.addString("Hopper State", () -> currentState.toString());
-        fuelSystemTab.addBoolean("Hopper Home Switch", this::isHomePressed);
-        fuelSystemTab.addNumber("Hopper Position", hopperEncoder::getPosition);
 
       
     }
@@ -138,6 +132,10 @@ public class Hopper extends SubsystemBase {
                     hopperMotor.set(retractSpeed);
                 }
                 break;
-       }      
+       } 
+       
+    Dashboard.logString("Hopper State", () -> currentState.toString());
+    Dashboard.logBoolean("Hopper Home Switch", this::isHomePressed);
+    Dashboard.logNumber("Hopper Position", hopperEncoder::getPosition);
     }
 }

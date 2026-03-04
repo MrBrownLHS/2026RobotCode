@@ -5,6 +5,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utilities.Dashboard;
 
 public class SuperSystem extends SubsystemBase {
   /** Creates a new SuperSystem. */
@@ -51,40 +52,21 @@ public class SuperSystem extends SubsystemBase {
           launcher.setState(Launcher.State.LAUNCH_COLLECT);
           kicker.setState(Kicker.State.KICK_COLLECT);
           intake.setState(Intake.State.INTAKE_COLLECT);
-          hopper.setState(Hopper.State.EXTENDING);
           agitator.setState(Agitator.State.IDLE);
           break;
 
         case LAUNCH_FAR:
           launcher.setState(Launcher.State.LAUNCH_FAR);
-
-          if (launcher.atSpeed()) {
-            kicker.setState(Kicker.State.KICK_FAR);
-            intake.setState(Intake.State.INTAKE_LAUNCH);
-            hopper.setState(Hopper.State.RETRACTING);
-            agitator.setState(Agitator.State.AGITATE);
-          } else {
-            kicker.setState(Kicker.State.IDLE);
-            intake.setState(Intake.State.IDLE);
-            hopper.setState(Hopper.State.IDLE);
-            agitator.setState(Agitator.State.IDLE);
-          }
+          kicker.setState(Kicker.State.KICK_FAR);
+          intake.setState(Intake.State.INTAKE_LAUNCH);
+          agitator.setState(Agitator.State.AGITATE);
           break;
 
         case LAUNCH_CLOSE:
           launcher.setState(Launcher.State.LAUNCH_CLOSE);
-
-          if (launcher.atSpeed()) {
-            kicker.setState(Kicker.State.KICK_CLOSE);
-            intake.setState(Intake.State.INTAKE_LAUNCH);
-            hopper.setState(Hopper.State.RETRACTING);
-            agitator.setState(Agitator.State.AGITATE);
-          } else {
-            kicker.setState(Kicker.State.IDLE);
-            intake.setState(Intake.State.IDLE);
-            hopper.setState(Hopper.State.IDLE);
-            agitator.setState(Agitator.State.IDLE);
-          }
+          kicker.setState(Kicker.State.KICK_CLOSE);
+          intake.setState(Intake.State.INTAKE_LAUNCH);
+          agitator.setState(Agitator.State.AGITATE);
           break;
 
         case REVERSE:
@@ -93,5 +75,6 @@ public class SuperSystem extends SubsystemBase {
           agitator.setState(Agitator.State.REVERSE);
           break;
       }
+    Dashboard.logString("SuperSystem Wanted State", () -> wantedState.toString());
   }
 }

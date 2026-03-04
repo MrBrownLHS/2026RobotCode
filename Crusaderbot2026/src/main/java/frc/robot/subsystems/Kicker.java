@@ -11,9 +11,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import com.revrobotics.spark.SparkBase;
+import frc.robot.utilities.Dashboard;
 
 
 public class Kicker extends SubsystemBase {
@@ -29,8 +28,7 @@ public class Kicker extends SubsystemBase {
   private State currentState = State.IDLE;
 
   private final SparkMax m_Kicker;
-  private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
- 
+  
   /** Creates a new Index. */
   public Kicker() {
     m_Kicker = new SparkMax(
@@ -47,7 +45,6 @@ public class Kicker extends SubsystemBase {
       SparkBase.ResetMode.kResetSafeParameters,
       SparkBase.PersistMode.kPersistParameters);
 
-    fuelSystemTab.addString("Kicker State", () -> currentState.toString());
   }
 
   public void setState(State newState) {
@@ -80,5 +77,7 @@ public class Kicker extends SubsystemBase {
         m_Kicker.set(-Constants.FuelSystemConstants.KICKER_COLLECT_SPEED);
         break;
       }
+
+    Dashboard.logString("Kicker State", () -> currentState.toString());
   }
 }

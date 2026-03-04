@@ -22,11 +22,12 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+
 
 
 
 import frc.robot.utilities.Constants;
+import frc.robot.utilities.Dashboard;
 
 public class Swerve extends SubsystemBase {
     private final Pigeon2 gyroscope;
@@ -43,7 +44,11 @@ public class Swerve extends SubsystemBase {
 
     private Field2d field;
 
-    private final ShuffleboardTab swerveTab = Shuffleboard.getTab("Swerve");
+    private ChassisSpeeds commandedSpeeds = new ChassisSpeeds();
+    private boolean fieldRelativeLast = false;
+    private boolean openLoopLast = false;
+
+  
 
     public Swerve() {
         gyroscope = new Pigeon2(Constants.gyroID);
@@ -65,27 +70,58 @@ public class Swerve extends SubsystemBase {
         field = new Field2d();
         resetModulesToAbsolute();
 
-        swerveTab.addString("Swerve Module States", () -> {
-            StringBuilder statesString = new StringBuilder();
-            for(NEOSwerveModule module : swerveModules) {
-                SwerveModuleState state = module.getSwerveModuleState();
-                statesString.append(String.format("Module %d: Angle=%.2f deg, Speed=%.2f m/s\n", module.moduleNumber, state.angle.getDegrees(), state.speedMetersPerSecond));
-            }
-            return statesString.toString();
-        });
+        // swerveTab.addString("Swerve Module States", () -> {
+        //     StringBuilder statesString = new StringBuilder();
+        //     for(NEOSwerveModule module : swerveModules) {
+        //         SwerveModuleState state = module.getSwerveModuleState();
+        //         statesString.append(String.format("Module %d: Angle=%.2f deg, Speed=%.2f m/s\n", module.moduleNumber, state.angle.getDegrees(), state.speedMetersPerSecond));
+        //     }
+        //     return statesString.toString();
+        // });
     }
 
+    // public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
+    //     SwerveModuleState[] swerveModuleStates = driveKinematics.toSwerveModuleStates(fieldRelative
+    //         ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getYawRotation2d())
+    //         : new ChassisSpeeds(translation.getX(), translation.getY(), rotation)
+    //     );
+
+    //     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.PhysicalMaxTranslationSpeed);
+    //     for(NEOSwerveModule module : swerveModules) {
+    //         module.setDesiredState(swerveModuleStates[module.moduleNumber], false);
+    //     }
+    // }
+
+    // Updated drive method to store last command for dashboard logging added 3/4
     public void drive(Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
-        SwerveModuleState[] swerveModuleStates = driveKinematics.toSwerveModuleStates(fieldRelative
-            ? ChassisSpeeds.fromFieldRelativeSpeeds(translation.getX(), translation.getY(), rotation, getYawRotation2d())
-            : new ChassisSpeeds(translation.getX(), translation.getY(), rotation)
+
+    fieldRelativeLast = fieldRelative;
+    openLoopLast = isOpenLoop;
+
+    commandedSpeeds = fieldRelative
+        ? ChassisSpeeds.fromFieldRelativeSpeeds(
+            translation.getX(),
+            translation.getY(),
+            rotation,
+            getYawRotation2d())
+        : new ChassisSpeeds(
+            translation.getX(),
+            translation.getY(),
+            rotation
         );
 
-        SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.SwerveConstants.PhysicalMaxTranslationSpeed);
-        for(NEOSwerveModule module : swerveModules) {
-            module.setDesiredState(swerveModuleStates[module.moduleNumber], false);
-        }
+    SwerveModuleState[] swerveModuleStates =
+        driveKinematics.toSwerveModuleStates(commandedSpeeds);
+
+    SwerveDriveKinematics.desaturateWheelSpeeds(
+        swerveModuleStates,
+        Constants.SwerveConstants.PhysicalMaxTranslationSpeed
+    );
+
+    for (NEOSwerveModule module : swerveModules) {
+        module.setDesiredState(swerveModuleStates[module.moduleNumber], false);
     }
+}
 
     public void driveRobotRelative(ChassisSpeeds speeds) {
         SwerveModuleState[] swerveModuleStates = driveKinematics.toSwerveModuleStates(speeds);
@@ -215,5 +251,97 @@ public class Swerve extends SubsystemBase {
 
         };
 
+        BaseStatusSignal.refreshAll(gyroAngle);
+        swerveOdometry.update(getYawRotation2d(), getSwerveModulePositions());
+        field.setRobotPose(getPose());
+
+        Pose2d pose = getPose();
+        ChassisSpeeds measuredSpeeds = getRobotRelativeSpeeds();
+
+        // ===============================
+        // 🔹 Robot Pose
+        // ===============================
+
+        Dashboard.logPose2d("Swerve/Pose", () -> pose);
+        Dashboard.logDouble("Swerve/Pose/X", pose::getX);
+        Dashboard.logDouble("Swerve/Pose/Y", pose::getY);
+        Dashboard.logDouble("Swerve/Pose/HeadingDeg",
+            () -> pose.getRotation().getDegrees());
+
+        // ===============================
+        // 🔹 Gyro
+        // ===============================
+
+        Dashboard.logDouble("Swerve/Gyro/RawYaw", this::getRawHeading);
+        Dashboard.logDouble("Swerve/Gyro/WrappedHeading", this::getHeading);
+
+        // ===============================
+        // 🔹 Chassis Speeds (Measured)
+        // ===============================
+
+        Dashboard.logDouble("Swerve/Measured/Vx",
+            () -> measuredSpeeds.vxMetersPerSecond);
+
+        Dashboard.logDouble("Swerve/Measured/Vy",
+            () -> measuredSpeeds.vyMetersPerSecond);
+
+        Dashboard.logDouble("Swerve/Measured/Omega",
+            () -> measuredSpeeds.omegaRadiansPerSecond);
+
+        // ===============================
+        // 🔹 Commanded Speeds
+        // ===============================
+
+        Dashboard.logDouble("Swerve/Commanded/Vx",
+            () -> commandedSpeeds.vxMetersPerSecond);
+
+        Dashboard.logDouble("Swerve/Commanded/Vy",
+            () -> commandedSpeeds.vyMetersPerSecond);
+
+        Dashboard.logDouble("Swerve/Commanded/Omega",
+            () -> commandedSpeeds.omegaRadiansPerSecond);
+
+        Dashboard.logBoolean("Swerve/FieldRelative",
+            () -> fieldRelativeLast);
+
+        Dashboard.logBoolean("Swerve/OpenLoop",
+            () -> openLoopLast);
+
+        // ===============================
+        // 🔹 Module Telemetry
+        // ===============================
+
+        for (NEOSwerveModule module : swerveModules) {
+
+            int i = module.moduleNumber;
+
+            SwerveModuleState measured = module.getSwerveModuleState();
+            SwerveModuleState desired = module.getDesiredState();
+
+            Dashboard.logDouble(
+                "Swerve/Module" + i + "/MeasuredAngle",
+                () -> measured.angle.getDegrees());
+
+            Dashboard.logDouble(
+                "Swerve/Module" + i + "/DesiredAngle",
+                () -> desired.angle.getDegrees());
+
+            Dashboard.logDouble(
+                "Swerve/Module" + i + "/AngleError",
+                () -> desired.angle.minus(measured.angle).getDegrees());
+
+            Dashboard.logDouble(
+                "Swerve/Module" + i + "/MeasuredSpeed",
+                () -> measured.speedMetersPerSecond);
+
+            Dashboard.logDouble(
+                "Swerve/Module" + i + "/DesiredSpeed",
+                () -> desired.speedMetersPerSecond);
+
+            Dashboard.logDouble(
+                "Swerve/Module" + i + "/SpeedError",
+                () -> desired.speedMetersPerSecond
+                    - measured.speedMetersPerSecond);
+        }
     }
 }

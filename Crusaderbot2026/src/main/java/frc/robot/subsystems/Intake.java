@@ -12,9 +12,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import frc.robot.utilities.Constants;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import com.revrobotics.spark.SparkBase;
+import frc.robot.utilities.Dashboard;
 
 
 
@@ -31,7 +30,7 @@ public class Intake extends SubsystemBase {
 
   private final SparkMax m_Intake;
 
-  private final ShuffleboardTab fuelSystemTab = Shuffleboard.getTab("Fuel System");
+ 
   
  
   /** Creates a new Intake. */
@@ -49,7 +48,7 @@ public class Intake extends SubsystemBase {
         SparkBase.ResetMode.kResetSafeParameters,
         SparkBase.PersistMode.kPersistParameters);
 
-    fuelSystemTab.addString("Intake State", () -> currentState.toString());
+
   }
 
   public void setState(State newState) {
@@ -78,6 +77,8 @@ public class Intake extends SubsystemBase {
         m_Intake.set(-Constants.FuelSystemConstants.INTAKE_MOTOR_COLLECT_SPEED);
         break;
       }
+
+    Dashboard.logString("Intake State", () -> currentState.toString());
     
   }
 }
