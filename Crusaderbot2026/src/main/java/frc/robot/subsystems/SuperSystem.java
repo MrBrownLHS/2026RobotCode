@@ -43,6 +43,10 @@ public class SuperSystem extends SubsystemBase {
     return wantedState;
   }
 
+  public boolean isLauncheratSpeed() {
+    return launcher.atSpeed();
+  }
+
   @Override
   public void periodic() {
       switch (wantedState) {
@@ -56,24 +60,53 @@ public class SuperSystem extends SubsystemBase {
 
         case COLLECT:
           launcher.setState(Launcher.State.LAUNCH_COLLECT);
-          kicker.setState(Kicker.State.KICK_COLLECT);
-          intake.setState(Intake.State.INTAKE_COLLECT);
-          agitator.setState(Agitator.State.IDLE);
-          break;
+
+          if (launcher.atSpeed()) {
+              kicker.setState(Kicker.State.KICK_COLLECT);
+              intake.setState(Intake.State.INTAKE_COLLECT);
+              agitator.setState(Agitator.State.AGITATE);  
+          } else {
+              launcher.setState(Launcher.State.IDLE);
+              kicker.setState(Kicker.State.IDLE);
+              intake.setState(Intake.State.IDLE);
+              hopper.setState(Hopper.State.IDLE);
+              agitator.setState(Agitator.State.IDLE);
+          }
+            break;
+          
 
         case LAUNCH_FAR:
           launcher.setState(Launcher.State.LAUNCH_FAR);
-          kicker.setState(Kicker.State.KICK_FAR);
-          intake.setState(Intake.State.INTAKE_LAUNCH);
-          agitator.setState(Agitator.State.AGITATE);
-          break;
+
+            if (launcher.atSpeed()) {
+                kicker.setState(Kicker.State.KICK_FAR);
+                intake.setState(Intake.State.INTAKE_LAUNCH);
+                agitator.setState(Agitator.State.AGITATE);  
+            } else {
+                launcher.setState(Launcher.State.IDLE);
+                kicker.setState(Kicker.State.IDLE);
+                intake.setState(Intake.State.IDLE);
+                hopper.setState(Hopper.State.IDLE);
+                agitator.setState(Agitator.State.IDLE);
+            }
+            break;
 
         case LAUNCH_CLOSE:
-          launcher.setState(Launcher.State.LAUNCH_CLOSE);
-          kicker.setState(Kicker.State.KICK_CLOSE);
-          intake.setState(Intake.State.INTAKE_LAUNCH);
-          agitator.setState(Agitator.State.AGITATE);
-          break;
+
+            launcher.setState(Launcher.State.LAUNCH_CLOSE);
+
+            if (launcher.atSpeed()) {
+                kicker.setState(Kicker.State.KICK_CLOSE);
+                intake.setState(Intake.State.INTAKE_LAUNCH);
+                agitator.setState(Agitator.State.AGITATE);  
+            } else {
+                launcher.setState(Launcher.State.IDLE);
+                kicker.setState(Kicker.State.IDLE);
+                intake.setState(Intake.State.IDLE);
+                hopper.setState(Hopper.State.IDLE);
+                agitator.setState(Agitator.State.IDLE);
+            }
+            break;
 
         case REVERSE:
           kicker.setState(Kicker.State.KICK_REVERSE);

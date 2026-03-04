@@ -26,6 +26,7 @@ import frc.robot.commands.LaunchCloseCommand;
 import frc.robot.commands.LaunchFarCommand;
 import frc.robot.commands.StopAllCommand;
 import frc.robot.commands.CollectCommand;
+import frc.robot.commands.AutoCenterLaunchClimb;
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
 
@@ -66,13 +67,12 @@ public class RobotContainer {
   // SuperSystem coordinates states across these shared subsystems
   private final SuperSystem superSystem = new SuperSystem(launch, kicker, intake, hopper, agitator);
 
-  private final LaunchFarCommand launchFarCommand = new LaunchFarCommand(superSystem, launch);
-  private final LaunchCloseCommand launchCloseCommand = new LaunchCloseCommand(superSystem, launch);
+  private final LaunchFarCommand launchFarCommand = new LaunchFarCommand(superSystem);
+  private final LaunchCloseCommand launchCloseCommand = new LaunchCloseCommand(superSystem);
   private final StopAllCommand stopAllCommand = new StopAllCommand(superSystem);
-  private final CollectCommand collectCommand = new CollectCommand(superSystem, launch);
+  private final CollectCommand collectCommand = new CollectCommand(superSystem);
 
-  
-  
+   
 
   // Controller axis mappings (populated from Constants)
   private final int translationAxis;
@@ -99,8 +99,12 @@ public class RobotContainer {
     DriverStation.startDataLog(DataLogManager.getLog());
     DataLogManager.log("Robot Initialized");
         
-    autoChooser = new SendableChooser<>();
-    
+  autoChooser = new SendableChooser<>();
+  // Populate autonomous chooser (default safe/no-op + Auto Center Launch Climb)
+  autoChooser.setDefaultOption("Do Nothing", new InstantCommand());
+  autoChooser.addOption("Auto Center Launch Climb", new AutoCenterLaunchClimb(swerveSubsystem, launch, climber));
+  SmartDashboard.putData("Auto Mode", autoChooser);
+
 
     UsbCamera camera = CameraServer.startAutomaticCapture(0);
         camera.setResolution(640, 480);
@@ -189,8 +193,6 @@ public class RobotContainer {
     );
 
       
-
-
     // Climber Controls: POV for up/retract and continuous reach commands
     CopilotCommandController.pov(0).onTrue(
     new InstantCommand(

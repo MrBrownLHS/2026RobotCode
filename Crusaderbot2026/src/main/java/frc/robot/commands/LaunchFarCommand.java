@@ -4,28 +4,19 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.SuperSystem;
-import frc.robot.subsystems.Launcher;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
-public class LaunchFarCommand extends SequentialCommandGroup {
 
-  public LaunchFarCommand(SuperSystem superSystem, Launcher launcher) {
+public class LaunchFarCommand extends StartEndCommand {
 
-    addCommands(
-
-      // Set system to launch mode (spin up only)
-      new InstantCommand(
-          () -> superSystem.setWantedState(SuperSystem.WantedState.LAUNCH_FAR),
-          superSystem),
-
-      // Wait until flywheel reaches speed
-      new WaitUntilCommand(launcher::atSpeed)
-
-      // Feeding continues because SuperSystem is in LAUNCH_FAR
-    );
+  public LaunchFarCommand(SuperSystem superSystem) {
+    super(
+        // onStart: set desired state to LAUNCH_FAR
+        () -> superSystem.setWantedState(SuperSystem.WantedState.LAUNCH_FAR),
+        // onEnd: return to IDLE when the command ends (button released)
+        () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
+        superSystem);
   }
 }
 
