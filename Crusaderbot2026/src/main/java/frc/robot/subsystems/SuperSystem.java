@@ -81,12 +81,12 @@ public class SuperSystem extends SubsystemBase {
           agitator.setState(Agitator.State.REVERSE);
           break;
       }
-    Dashboard.logString("SuperSystem Wanted State", () -> wantedState.toString());
-
-    DriverHUD.logString("SuperSystem State", () -> wantedState.toString());
-    DriverHUD.logString("Intake State", () -> intake.getState().toString());
-    DriverHUD.logString("Kicker State", () -> kicker.getState().toString());
-    DriverHUD.logString("Hopper State", () -> hopper.getState().toString());
-    DriverHUD.logString("Agitator State", () -> agitator.getState().toString());
+      Dashboard.logString("SuperSystem Wanted State", () -> wantedState.toString());
+      // Aggregated readiness flags
+      Dashboard.logBoolean("ReadyToShoot", () -> launcher.atSpeed());
+      Dashboard.logBoolean("ReadyToCollect", () -> intake.getState() == Intake.State.INTAKE_COLLECT);
+      DriverHUD.logString("SuperSystem State", () -> wantedState.toString());
+    // Also publish the ready flags to the driver HUD for live SmartDashboard display
+      DriverHUD.logReadyFlags(launcher, intake);
   }
 }

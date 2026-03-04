@@ -137,6 +137,7 @@ public class RobotContainer {
     DriverHUD.logSwerve(swerveSubsystem);
     DriverHUD.logLauncher(launch);
     DriverHUD.logSuperSystem(superSystem);
+  DriverHUD.logReadyFlags(launch, intake);
     DriverHUD.logClimber(climber);
   }
 

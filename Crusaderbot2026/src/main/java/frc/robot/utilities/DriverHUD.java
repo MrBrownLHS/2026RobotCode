@@ -14,6 +14,7 @@ import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Intake;
 
 
 public class DriverHUD {
@@ -57,9 +58,10 @@ public class DriverHUD {
         // Launcher exposes atSpeed(); more detailed launcher telemetry is logged inside Launcher.periodic()
         logBoolean("Launcher At Speed", launcher::atSpeed);
     }
-
-    public static void logLauncherTargetRPM(Launcher launcher) {
-        logNumber("Launcher Target RPM", () -> launcher.getTargetRPM());
+    
+    public static void logReadyFlags(Launcher launcher, Intake intake) {
+        logBoolean("ReadyToShoot", launcher::atSpeed);
+        logBoolean("ReadyToCollect", () -> intake.getState() == Intake.State.INTAKE_COLLECT);
     }
 
     public static void logSuperSystem(SuperSystem superSystem) {
