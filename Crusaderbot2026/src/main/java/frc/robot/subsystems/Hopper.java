@@ -1,15 +1,14 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -22,25 +21,28 @@ public class Hopper extends SubsystemBase {
     public enum State {
         IDLE,
         EXTENDING,
-        RETRACTING
+        RETRACTING,
+        SHUFFLE
     }
 
     private State currentState = State.IDLE;
 
     private final SparkMax hopperMotor;
     private final RelativeEncoder hopperEncoder;
+    private final SparkClosedLoopController hopperController;
 
-    // Single home (closed) limit switch
     private final DigitalInput homeSwitch;
 
-    // Tunable values (default fallbacks)
-    private double extendSpeed = Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED; //Tune during testing
-    private double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED; //Tune during testing
-    private double openPosition = Constants.FuelSystemConstants.HOPPER_OPEN_POSITION; // rotations – tune 
-    
+    // Tunable Positions
+    private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION; // ~10
 
+    private final double shufflePosition = Constants.FuelSystemConstants.HOPPER_SHUFFLE_POSITION; // ~5
 
-     /** Creates a new Hopper. */
+    private final double positionTolerance = 0.15;
+
+    // Shuffle control
+    private boolean shuffleGoingOut = true;
+    private double currentTarget = openPosition;
 
     public Hopper() {
 
@@ -50,23 +52,33 @@ public class Hopper extends SubsystemBase {
         );
 
         SparkMaxConfig config = new SparkMaxConfig();
+
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
         config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
 
+        // ---- Closed Loop Position Control ----
+        config.closedLoop
+            .pid(
+                0.4,   // kP (start here, tune lightly)
+                0.0,   // kI
+                0.0)   // kD
+            .outputRange(-0.15, 0.15);  // limit speed
+
         hopperMotor.configure(
-              config,
-              SparkBase.ResetMode.kResetSafeParameters,
-              SparkBase.PersistMode.kPersistParameters);
+            config,
+            SparkBase.ResetMode.kResetSafeParameters,
+            SparkBase.PersistMode.kPersistParameters
+        );
 
         hopperEncoder = hopperMotor.getEncoder();
+        hopperController = hopperMotor.getClosedLoopController();
+
         hopperEncoder.setPosition(0);
 
         homeSwitch = new DigitalInput(
             Constants.FuelSystemConstants.HOPPER_HOME_SWITCH_DIO
         );
-
-      
     }
 
     /* =============================
@@ -74,7 +86,15 @@ public class Hopper extends SubsystemBase {
        ============================= */
 
     public void setState(State newState) {
-        currentState = newState;
+        if (newState != currentState) {
+            currentState = newState;
+
+            // Reset shuffle direction when entering shuffle
+            if (newState == State.SHUFFLE) {
+                shuffleGoingOut = true;
+                currentTarget = openPosition;
+            }
+        }
     }
 
     public State getState() {
@@ -91,8 +111,7 @@ public class Hopper extends SubsystemBase {
        ============================= */
 
     public boolean isHomePressed() {
-        // Invert if wired normally closed
-        return !homeSwitch.get();
+        return !homeSwitch.get(); // invert if wired NC
     }
 
     /* =============================
@@ -102,9 +121,9 @@ public class Hopper extends SubsystemBase {
     @Override
     public void periodic() {
 
-      double position = hopperEncoder.getPosition();
+        double position = hopperEncoder.getPosition();
 
-        // Auto re-zero if home switch is pressed
+        // Auto re-zero when homed
         if (isHomePressed()) {
             hopperEncoder.setPosition(0);
         }
@@ -116,26 +135,40 @@ public class Hopper extends SubsystemBase {
                 break;
 
             case EXTENDING:
-                if (position >= openPosition) {
-                    hopperMotor.set(0);
-                    currentState = State.IDLE;
-                } else {
-                    hopperMotor.set(extendSpeed);
-                }
+                hopperController.setReference(
+                    openPosition,
+                    ControlType.kPosition,
+                    ClosedLoopSlot.kSlot0);
                 break;
 
             case RETRACTING:
-                if (position <= 0 || isHomePressed()) {
-                    hopperMotor.set(0);
-                    currentState = State.IDLE;
-                } else {
-                    hopperMotor.set(retractSpeed);
-                }
+                hopperController.setReference(
+                    0,
+                    ControlType.kPosition,
+                    ClosedLoopSlot.kSlot0);
                 break;
-       } 
-       
-    Dashboard.logString("Hopper State", () -> currentState.toString());
-    Dashboard.logBoolean("Hopper Home Switch", this::isHomePressed);
-    Dashboard.logNumber("Hopper Position", hopperEncoder::getPosition);
+
+            case SHUFFLE:
+
+                // If at target, switch direction
+                if (Math.abs(position - currentTarget) < positionTolerance) {
+                    shuffleGoingOut = !shuffleGoingOut;
+                    currentTarget = shuffleGoingOut
+                        ? openPosition
+                        : shufflePosition;
+                }
+
+                hopperController.setReference(
+                    currentTarget,
+                    ControlType.kPosition,
+                    ClosedLoopSlot.kSlot0);
+
+                break;
+        }
+
+        Dashboard.logString("Hopper State", () -> currentState.toString());
+        Dashboard.logNumber("Hopper Position", hopperEncoder::getPosition);
+        Dashboard.logNumber("Hopper Target", () -> currentTarget);
+        Dashboard.logBoolean("Home Switch", this::isHomePressed);
     }
 }

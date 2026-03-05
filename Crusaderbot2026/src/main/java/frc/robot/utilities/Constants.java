@@ -56,8 +56,11 @@ public class Constants {
         public static final int HOPPER_MOTOR_ID = 17;
         public static final int HOPPER_HOME_SWITCH_DIO = 0;      
         public static final double HOPPER_EXTEND_SPEED = 0.15; //Tune during testing
+        public static final double HOPPER_EXTEND_POSITION = 10.0; //Tune during testing
         public static final double HOPPER_RETRACT_SPEED = -0.15;
-        public static final double HOPPER_OPEN_POSITION = 10.0; //Tune during testing
+        public static final double HOPPER_RETRACT_POSITION = 0.0; //Tune during testing
+        public static final double HOPPER_SHUFFLE_SPEED = 0.15; //Tune during testing
+        public static final double HOPPER_SHUFFLE_POSITION = 5.0; //
     }
   
   public static final class ClimberConstants {

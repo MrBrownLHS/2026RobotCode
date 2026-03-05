@@ -77,6 +77,7 @@ public class SuperSystem extends SubsystemBase {
               kicker.setState(Kicker.State.KICK_FAR);
               intake.setState(Intake.State.INTAKE_LAUNCH);
               agitator.setState(Agitator.State.AGITATE);
+              hopper.setState(Hopper.State.SHUFFLE);
          
               }
               break;
@@ -89,6 +90,7 @@ public class SuperSystem extends SubsystemBase {
                 kicker.setState(Kicker.State.KICK_CLOSE);
                 intake.setState(Intake.State.INTAKE_LAUNCH);
                 agitator.setState(Agitator.State.AGITATE);  
+                hopper.setState(Hopper.State.SHUFFLE);
             }
             break;
 
