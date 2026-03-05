@@ -24,6 +24,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import frc.robot.commands.LaunchCloseCommand;
 import frc.robot.commands.LaunchFarCommand;
+import frc.robot.commands.ReverseCollectorCommand;
 import frc.robot.commands.StopAllCommand;
 import frc.robot.commands.CollectCommand;
 import frc.robot.commands.AutoCenterLaunchClimb;
@@ -71,6 +72,7 @@ public class RobotContainer {
   private final LaunchCloseCommand launchCloseCommand = new LaunchCloseCommand(superSystem);
   private final StopAllCommand stopAllCommand = new StopAllCommand(superSystem);
   private final CollectCommand collectCommand = new CollectCommand(superSystem);
+  private final ReverseCollectorCommand reverseCollectorCommand = new ReverseCollectorCommand(superSystem);
 
    
 
@@ -171,13 +173,17 @@ public class RobotContainer {
     );
 
     // Intake/Index Controls: co-pilot A runs all intake/index/launch collect
-    CopilotCommandController.a().whileTrue(launchFarCommand);
     
-    CopilotCommandController.b().whileTrue(launchCloseCommand);
-    
+  // Bind right trigger (use no-arg overload so we don't pass a threshold double)
+    CopilotCommandController.rightTrigger(0.5).whileTrue(launchFarCommand);
+
+    CopilotCommandController.leftTrigger(0.5).whileTrue(launchCloseCommand);
+        
     CopilotCommandController.x().onTrue(stopAllCommand);
 
     CopilotCommandController.rightBumper().whileTrue(collectCommand);
+
+    CopilotCommandController.leftBumper().whileTrue(reverseCollectorCommand);
 
 
     CopilotCommandController.pov(90).whileTrue(
@@ -195,13 +201,13 @@ public class RobotContainer {
       
     // Climber Controls: POV for up/retract and continuous reach commands
     CopilotCommandController.pov(0).onTrue(
-    new InstantCommand(
+    new RunCommand(
         () -> climber.setState(
           Climber.State.EXTENDING), climber)
     );       
 
     CopilotCommandController.pov(180).whileTrue(
-      new InstantCommand (
+      new RunCommand (
         () -> climber.setState(
           Climber.State.CLIMBING), climber)
     );
