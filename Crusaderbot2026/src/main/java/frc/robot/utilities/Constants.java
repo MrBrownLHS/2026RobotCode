@@ -25,7 +25,7 @@ public class Constants {
   public static final class FuelSystemConstants {
     //Intake
         public static final int INTAKE_MOTOR_ID = 13;
-        public static final double INTAKE_MOTOR_COLLECT_SPEED = -0.15; //Tune during testing
+        public static final double INTAKE_MOTOR_COLLECT_SPEED = -0.25; //Tune during testing
         public static final double INTAKE_MOTOR_LAUNCH_SPEED = -0.25; //Tune during testing  
         public static final double INTAKE_MOTOR_REVERSE_SPEED = 0.15; //Tune during testing --- IGNORE ---
         public static final int INDEX_MOTOR_ID = 14;
@@ -38,7 +38,7 @@ public class Constants {
         public static final double LAUNCH_COLLECT_RPM = 1000; // Tune
         public static final double LAUNCH_RPM_TOLERANCE = 150; // Tune
 
-        public static final double LAUNCH_P = 0.001;
+        public static final double LAUNCH_P = 0.00015;
         public static final double LAUNCH_I = 0.0;
         public static final double LAUNCH_D = 0.0;
         public static final double LAUNCH_KS = 0.0;

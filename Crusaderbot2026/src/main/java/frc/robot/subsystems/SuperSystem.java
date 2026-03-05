@@ -64,32 +64,22 @@ public class SuperSystem extends SubsystemBase {
           if (launcher.atSpeed()) {
               kicker.setState(Kicker.State.KICK_COLLECT);
               intake.setState(Intake.State.INTAKE_COLLECT);
-              agitator.setState(Agitator.State.AGITATE);  
-          } else {
-              launcher.setState(Launcher.State.IDLE);
-              kicker.setState(Kicker.State.IDLE);
-              intake.setState(Intake.State.IDLE);
-              hopper.setState(Hopper.State.IDLE);
-              agitator.setState(Agitator.State.IDLE);
+              agitator.setState(Agitator.State.IDLE); 
           }
             break;
           
 
         case LAUNCH_FAR:
-          launcher.setState(Launcher.State.LAUNCH_FAR);
+          
+              launcher.setState(Launcher.State.LAUNCH_FAR);
 
-            if (launcher.atSpeed()) {
-                kicker.setState(Kicker.State.KICK_FAR);
-                intake.setState(Intake.State.INTAKE_LAUNCH);
-                agitator.setState(Agitator.State.AGITATE);  
-            } else {
-                launcher.setState(Launcher.State.IDLE);
-                kicker.setState(Kicker.State.IDLE);
-                intake.setState(Intake.State.IDLE);
-                hopper.setState(Hopper.State.IDLE);
-                agitator.setState(Agitator.State.IDLE);
-            }
-            break;
+          if (launcher.atSpeed()) {
+              kicker.setState(Kicker.State.KICK_FAR);
+              intake.setState(Intake.State.INTAKE_LAUNCH);
+              agitator.setState(Agitator.State.AGITATE);
+         
+              }
+              break;
 
         case LAUNCH_CLOSE:
 
@@ -99,12 +89,6 @@ public class SuperSystem extends SubsystemBase {
                 kicker.setState(Kicker.State.KICK_CLOSE);
                 intake.setState(Intake.State.INTAKE_LAUNCH);
                 agitator.setState(Agitator.State.AGITATE);  
-            } else {
-                launcher.setState(Launcher.State.IDLE);
-                kicker.setState(Kicker.State.IDLE);
-                intake.setState(Intake.State.IDLE);
-                hopper.setState(Hopper.State.IDLE);
-                agitator.setState(Agitator.State.IDLE);
             }
             break;
 

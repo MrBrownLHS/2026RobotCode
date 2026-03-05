@@ -99,11 +99,11 @@ public class RobotContainer {
     DriverStation.startDataLog(DataLogManager.getLog());
     DataLogManager.log("Robot Initialized");
         
-  autoChooser = new SendableChooser<>();
-  // Populate autonomous chooser (default safe/no-op + Auto Center Launch Climb)
-  autoChooser.setDefaultOption("Do Nothing", new InstantCommand());
-  autoChooser.addOption("Auto Center Launch Climb", new AutoCenterLaunchClimb(swerveSubsystem, launch, climber));
-  SmartDashboard.putData("Auto Mode", autoChooser);
+    autoChooser = new SendableChooser<>();
+    // Populate autonomous chooser (default safe/no-op + Auto Center Launch Climb)
+    autoChooser.setDefaultOption("Do Nothing", new InstantCommand());
+    autoChooser.addOption("Auto Center Launch Climb", new AutoCenterLaunchClimb(swerveSubsystem, launch, climber));
+    SmartDashboard.putData("Auto Mode", autoChooser);
 
 
     UsbCamera camera = CameraServer.startAutomaticCapture(0);

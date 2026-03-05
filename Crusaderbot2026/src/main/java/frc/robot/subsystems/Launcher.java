@@ -48,13 +48,15 @@ public class Launcher extends SubsystemBase {
     SparkMaxConfig config = new SparkMaxConfig();
     config.idleMode(IdleMode.kCoast);
     config.inverted(true);
+    config.openLoopRampRate(0.2);
+    config.closedLoopRampRate(0.3);
 
     config.closedLoop
         .pid(
             Constants.FuelSystemConstants.LAUNCH_P,
             Constants.FuelSystemConstants.LAUNCH_I,
             Constants.FuelSystemConstants.LAUNCH_D)
-        .outputRange(-1.0, 1.0);
+        .outputRange(-0.2, 1.0);
 
     launcherMotor.configure(
         config,
@@ -95,9 +97,10 @@ public class Launcher extends SubsystemBase {
       double targetRPM = getTargetRPM();
       currentSetpointRPM = targetRPM;
 
-      if (targetRPM == 0.0) {
-        launcherController.setReference(0.0, ControlType.kVelocity);
-        isAtSpeedLatched = false;
+    if (targetRPM == 0.0) {
+      launcherMotor.set(0.0);   
+      isAtSpeedLatched = false;
+
       } else {
 
         double ff =
