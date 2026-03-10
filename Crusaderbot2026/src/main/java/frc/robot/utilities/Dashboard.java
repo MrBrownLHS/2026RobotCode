@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 
 
 /** Add your docs here. */
@@ -42,7 +44,7 @@ public final class Dashboard {
         Logger.recordOutput(key, supplier.get());
     }
     
-    public static void logSwerveModuleState(String key, Supplier<SwerveModuleState> supplier) {
+    public static void logSwerveModuleStates(String key, Supplier<SwerveModuleState> supplier) {
         Logger.recordOutput(key, supplier.get());
     }
     public static void logDouble(String key, DoubleSupplier supplier) {
@@ -52,6 +54,12 @@ public final class Dashboard {
     public static void logDoubleArray(String key, double[] values) {
         Logger.recordOutput(key, values);
     }
+
+    public static void logSwerveModuleStateArray(String key, SwerveModuleState[] values) {
+        Logger.recordOutput(key, values);
+    }
+
+
 
 
 

@@ -22,13 +22,15 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.utilities.DriverHUD;
-
-
-
+//import frc.robot.utilities.DriverHUD;
+import frc.robot.utilities.Dashboard;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 
 import frc.robot.utilities.Constants;
 import frc.robot.utilities.Dashboard;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.math.geometry.Pose2d;
 
 public class Swerve extends SubsystemBase {
     private final Pigeon2 gyroscope;
@@ -49,6 +51,20 @@ public class Swerve extends SubsystemBase {
     private boolean fieldRelativeLast = false;
     private boolean openLoopLast = false;
 
+    private final StructArrayPublisher<SwerveModuleState> desiredStatesPublisher =
+    NetworkTableInstance.getDefault()
+        .getStructArrayTopic("Swerve/DesiredStates", SwerveModuleState.struct)
+        .publish();
+
+    private final StructArrayPublisher<SwerveModuleState> actualStatesPublisher =
+    NetworkTableInstance.getDefault()
+        .getStructArrayTopic("Swerve/ActualStates", SwerveModuleState.struct)
+        .publish();
+
+    private final StructPublisher<Pose2d> posePublisher =
+    NetworkTableInstance.getDefault()
+        .getStructTopic("Swerve/Pose2d", Pose2d.struct)
+        .publish(); 
   
 
     public Swerve() {
@@ -258,6 +274,7 @@ public class Swerve extends SubsystemBase {
 
         Pose2d pose = getPose();
         ChassisSpeeds measuredSpeeds = getRobotRelativeSpeeds();
+       
 
         // ===============================
         // 🔹 Robot Pose
@@ -343,22 +360,24 @@ public class Swerve extends SubsystemBase {
                 "Swerve/Module" + i + "/SpeedError",
                 () -> desired.speedMetersPerSecond
                     - measured.speedMetersPerSecond);
+        // ===============================
+        // 🔹 Elastic Swerve Visualization
+        // ===============================
+
+        SwerveModuleState[] actualStates = new SwerveModuleState[4];
+        SwerveModuleState[] desiredStatesForViz = new SwerveModuleState[4];
+
+    
+        actualStates[i] = module.getSwerveModuleState();
+        desiredStatesForViz[i] = module.getDesiredState();
+
+
+        // Publish for Elastic widget
+        actualStatesPublisher.set(actualStates);
+        desiredStatesPublisher.set(desiredStatesForViz);
+
+        posePublisher.set(getPose());
+
         }
-
-         // Pose and gyro
-    DriverHUD.logPose2d("Robot Pose", this::getPose);
-    DriverHUD.logNumber("Gyro Heading", this::getHeading);
-
-    // Swerve module measured vs desired states
-    double[] measuredHUDStates = new double[8];
-    double[] desiredHUDStates = new double[8];
-    for (int i = 0; i < swerveModules.length; i++) {
-        measuredHUDStates[i*2] = swerveModules[i].getSwerveModuleState().angle.getDegrees();
-        measuredHUDStates[i*2 + 1] = swerveModules[i].getSwerveModuleState().speedMetersPerSecond;
-        desiredHUDStates[i*2] = swerveModules[i].getDesiredState().angle.getDegrees();
-        desiredHUDStates[i*2 + 1] = swerveModules[i].getDesiredState().speedMetersPerSecond;
-    }
-    DriverHUD.logDoubleArray("Swerve Measured States", measuredHUDStates);
-    DriverHUD.logDoubleArray("Swerve Desired States", desiredHUDStates);
     }
 }

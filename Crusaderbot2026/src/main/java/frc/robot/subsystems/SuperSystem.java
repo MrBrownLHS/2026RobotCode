@@ -6,7 +6,7 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utilities.Dashboard;
-import frc.robot.utilities.DriverHUD;
+//import frc.robot.utilities.DriverHUD;
 
 public class SuperSystem extends SubsystemBase {
   /** Creates a new SuperSystem. */
@@ -104,8 +104,8 @@ public class SuperSystem extends SubsystemBase {
       // Aggregated readiness flags
       Dashboard.logBoolean("ReadyToShoot", () -> launcher.atSpeed());
       Dashboard.logBoolean("ReadyToCollect", () -> intake.getState() == Intake.State.INTAKE_COLLECT);
-      DriverHUD.logString("SuperSystem State", () -> wantedState.toString());
-    // Also publish the ready flags to the driver HUD for live SmartDashboard display
-      DriverHUD.logReadyFlags(launcher, intake);
+    //   DriverHUD.logString("SuperSystem State", () -> wantedState.toString());
+    // // Also publish the ready flags to the driver HUD for live SmartDashboard display
+    //   DriverHUD.logReadyFlags(launcher, intake);
   }
 }

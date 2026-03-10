@@ -1,6 +1,9 @@
 package frc.robot.utilities;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+
 
 public class OnboardModuleState {
 
@@ -62,5 +65,6 @@ public class OnboardModuleState {
         }
 
         return new SwerveModuleState(targetSpeed, Rotation2d.fromDegrees(targetAngle));
+        
     }
 }

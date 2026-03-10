@@ -2,7 +2,6 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkClosedLoopController;
@@ -15,7 +14,6 @@ import com.revrobotics.RelativeEncoder;
 
 import frc.robot.utilities.Constants;
 import frc.robot.utilities.Dashboard;
-import frc.robot.utilities.DriverHUD;
 
 public class Launcher extends SubsystemBase {
 
@@ -29,9 +27,18 @@ public class Launcher extends SubsystemBase {
   private State currentState = State.IDLE;
   private State lastState = null;
 
-  private final SparkMax launcherMotor;
-  private final RelativeEncoder launcherEncoder;
-  private final SparkClosedLoopController launcherController;
+  // ===============================
+  // Motors
+  // ===============================
+
+  private final SparkMax m_leftLauncher;   // NEW motor
+  private final SparkMax m_rightLauncher;  // Existing motor
+
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
+
+  private final SparkClosedLoopController leftController;
+  private final SparkClosedLoopController rightController;
 
   private double currentSetpointRPM = 0.0;
   private boolean isAtSpeedLatched = false;
@@ -41,31 +48,63 @@ public class Launcher extends SubsystemBase {
 
   public Launcher() {
 
-    launcherMotor = new SparkMax(
-        Constants.FuelSystemConstants.LAUNCH_MOTOR_1_ID,
+    m_leftLauncher = new SparkMax(
+        Constants.FuelSystemConstants.LAUNCH_MOTOR_LEFT_ID,
         MotorType.kBrushless);
 
-    SparkMaxConfig config = new SparkMaxConfig();
-    config.idleMode(IdleMode.kCoast);
-    config.inverted(true);
-    config.openLoopRampRate(0.2);
-    config.closedLoopRampRate(0.3);
+    m_rightLauncher = new SparkMax(
+        Constants.FuelSystemConstants.LAUNCH_MOTOR_RIGHT_ID,
+        MotorType.kBrushless);
 
-    config.closedLoop
+    SparkMaxConfig rightConfig = new SparkMaxConfig();
+    rightConfig.inverted(true);
+    rightConfig.idleMode(IdleMode.kCoast);
+    rightConfig.openLoopRampRate(0.2);
+    rightConfig.closedLoopRampRate(0.3);
+
+    rightConfig.closedLoop
+        .pid(
+            Constants.FuelSystemConstants.LAUNCH_P,
+            Constants.FuelSystemConstants.LAUNCH_I,
+            Constants.FuelSystemConstants.LAUNCH_D)
+        .outputRange(-0.2, 1.0);
+    
+    m_rightLauncher.configure(
+        rightConfig,
+        SparkBase.ResetMode.kResetSafeParameters,
+        SparkBase.PersistMode.kPersistParameters);
+
+
+    SparkMaxConfig leftConfig = new SparkMaxConfig();
+    leftConfig.inverted(false);
+    leftConfig.idleMode(IdleMode.kCoast);
+    leftConfig.openLoopRampRate(0.2);
+    leftConfig.closedLoopRampRate(0.3);
+
+    leftConfig.closedLoop
         .pid(
             Constants.FuelSystemConstants.LAUNCH_P,
             Constants.FuelSystemConstants.LAUNCH_I,
             Constants.FuelSystemConstants.LAUNCH_D)
         .outputRange(-0.2, 1.0);
 
-    launcherMotor.configure(
-        config,
+    m_leftLauncher.configure(
+        leftConfig,
         SparkBase.ResetMode.kResetSafeParameters,
         SparkBase.PersistMode.kPersistParameters);
 
-    launcherEncoder = launcherMotor.getEncoder();
-    launcherController = launcherMotor.getClosedLoopController();
+    
+
+    leftEncoder = m_leftLauncher.getEncoder();
+    rightEncoder = m_rightLauncher.getEncoder();
+
+    leftController = m_leftLauncher.getClosedLoopController();
+    rightController = m_rightLauncher.getClosedLoopController();
   }
+
+  // ===============================
+  // Public API
+  // ===============================
 
   public void setState(State state) {
     currentState = state;
@@ -88,18 +127,23 @@ public class Launcher extends SubsystemBase {
     }
   }
 
+  // ===============================
+  // Periodic
+  // ===============================
+
   @Override
   public void periodic() {
 
-    // Only update motor if state changed
     if (currentState != lastState) {
 
       double targetRPM = getTargetRPM();
       currentSetpointRPM = targetRPM;
 
-    if (targetRPM == 0.0) {
-      launcherMotor.set(0.0);   
-      isAtSpeedLatched = false;
+      if (targetRPM == 0.0) {
+
+        m_leftLauncher.set(0.0);
+        m_rightLauncher.set(0.0);
+        isAtSpeedLatched = false;
 
       } else {
 
@@ -107,45 +151,63 @@ public class Launcher extends SubsystemBase {
             Constants.FuelSystemConstants.LAUNCH_KS * Math.signum(targetRPM)
             + Constants.FuelSystemConstants.LAUNCH_KV * targetRPM;
 
-        launcherController.setReference(
+        leftController.setReference(
             targetRPM,
             ControlType.kVelocity,
             ClosedLoopSlot.kSlot0,
             ff);
 
-        isAtSpeedLatched = false; // reset latch when new shot requested
+        rightController.setReference(
+            targetRPM,
+            ControlType.kVelocity,
+            ClosedLoopSlot.kSlot0,
+            ff);
+
+        isAtSpeedLatched = false;
       }
 
       lastState = currentState;
     }
 
-    // --- Stable atSpeed logic (with hysteresis) ---
+    // ===============================
+    // At Speed Logic (Both Wheels)
+    // ===============================
 
-    double error = currentSetpointRPM - launcherEncoder.getVelocity();
+    double leftError = currentSetpointRPM - leftEncoder.getVelocity();
+    double rightError = currentSetpointRPM - rightEncoder.getVelocity();
 
     if (currentSetpointRPM > 0.0) {
 
-      // Tight tolerance to latch true
-      if (!isAtSpeedLatched && Math.abs(error) < rpmTolerance) {
+      boolean leftAtSpeed = Math.abs(leftError) < rpmTolerance;
+      boolean rightAtSpeed = Math.abs(rightError) < rpmTolerance;
+
+      if (!isAtSpeedLatched && leftAtSpeed && rightAtSpeed) {
         isAtSpeedLatched = true;
       }
 
-      // Wider tolerance to unlatch
-      if (isAtSpeedLatched && Math.abs(error) > rpmTolerance * 2.0) {
+      if (isAtSpeedLatched &&
+          (Math.abs(leftError) > rpmTolerance * 2.0 ||
+           Math.abs(rightError) > rpmTolerance * 2.0)) {
         isAtSpeedLatched = false;
       }
 
     } else {
       isAtSpeedLatched = false;
     }
-  
+
+    // ===============================
+    // Dashboard Logging
+    // ===============================
+
     Dashboard.logBoolean("Launcher At Speed", () -> isAtSpeedLatched);
     Dashboard.logNumber("Launcher Target RPM", () -> currentSetpointRPM);
-    Dashboard.logNumber("Launcher Actual RPM", () -> launcherEncoder.getVelocity());
-    Dashboard.logNumber("Launcher RPM Error", () -> error);
-    Dashboard.logString("Launcher State", () -> currentState.toString());
 
-    DriverHUD.logNumber("Launcher Target RPM", this::getTargetRPM);
-    DriverHUD.logBoolean("Launcher At Speed", this::atSpeed);
+    Dashboard.logNumber("Launcher Left RPM", leftEncoder::getVelocity);
+    Dashboard.logNumber("Launcher Right RPM", rightEncoder::getVelocity);
+
+    Dashboard.logNumber("Launcher Left Error", () -> leftError);
+    Dashboard.logNumber("Launcher Right Error", () -> rightError);
+
+    Dashboard.logString("Launcher State", () -> currentState.toString());
   }
 }

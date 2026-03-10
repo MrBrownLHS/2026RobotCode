@@ -43,7 +43,7 @@ import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.utilities.Constants;
 import frc.robot.utilities.Dashboard;
-import frc.robot.utilities.DriverHUD;
+//import frc.robot.utilities.DriverHUD;
 
 
 public class RobotContainer {
@@ -128,9 +128,9 @@ public class RobotContainer {
     // sends velocities to the swerve subsystem while no other command runs it.
     swerveSubsystem.setDefaultCommand(new SwerveController(
             swerveSubsystem,
-            () -> -translationLimiter.calculate(DriverController.getRawAxis(translationAxis) * 0.50),
-            () -> -strafeLimiter.calculate(DriverController.getRawAxis(strafeAxis) * 0.50),
-            () -> rotationLimiter.calculate(DriverController.getRawAxis(rotationAxis) * 0.50),
+            () -> -translationLimiter.calculate(DriverController.getRawAxis(translationAxis) * 0.750),
+            () -> -strafeLimiter.calculate(DriverController.getRawAxis(strafeAxis) * 0.750),
+            () -> rotationLimiter.calculate(DriverController.getRawAxis(rotationAxis) * 0.750),
             () -> robotCentric.getAsBoolean()) // lambda probably not needed but why not
     );
 
@@ -140,11 +140,11 @@ public class RobotContainer {
     // Configure button bindings for control mappings
     configureBindings();
 
-    DriverHUD.logSwerve(swerveSubsystem);
-    DriverHUD.logLauncher(launch);
-    DriverHUD.logSuperSystem(superSystem);
-  DriverHUD.logReadyFlags(launch, intake);
-    DriverHUD.logClimber(climber);
+  //   DriverHUD.logSwerve(swerveSubsystem);
+  //   DriverHUD.logLauncher(launch);
+  //   DriverHUD.logSuperSystem(superSystem);
+  // DriverHUD.logReadyFlags(launch, intake);
+  //   DriverHUD.logClimber(climber);
   }
 
    
