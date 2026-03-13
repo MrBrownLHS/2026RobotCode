@@ -41,7 +41,7 @@ public class Launcher extends SubsystemBase {
   private final SparkClosedLoopController rightController;
 
   private double currentSetpointRPM = 0.0;
-  private boolean isAtSpeedLatched = false;
+  private boolean isAtSpeed = false;
 
   private final double rpmTolerance =
       Constants.FuelSystemConstants.LAUNCH_RPM_TOLERANCE;
@@ -102,7 +102,7 @@ public class Launcher extends SubsystemBase {
     rightController = m_rightLauncher.getClosedLoopController();
   }
 
-  // ===============================
+   // ===============================
   // Public API
   // ===============================
 
@@ -111,10 +111,10 @@ public class Launcher extends SubsystemBase {
   }
 
   public boolean atSpeed() {
-    return isAtSpeedLatched;
+    return isAtSpeed;
   }
 
-  public double getTargetRPM() {
+  private double getTargetRPM() {
     switch (currentState) {
       case LAUNCH_FAR:
         return Constants.FuelSystemConstants.LAUNCH_FAR_RPM;
@@ -134,80 +134,57 @@ public class Launcher extends SubsystemBase {
   @Override
   public void periodic() {
 
-    if (currentState != lastState) {
+    currentSetpointRPM = getTargetRPM();
 
-      double targetRPM = getTargetRPM();
-      currentSetpointRPM = targetRPM;
+    if (currentSetpointRPM == 0.0) {
 
-      if (targetRPM == 0.0) {
-
-        m_leftLauncher.set(0.0);
-        m_rightLauncher.set(0.0);
-        isAtSpeedLatched = false;
-
-      } else {
-
-        double ff =
-            Constants.FuelSystemConstants.LAUNCH_KS * Math.signum(targetRPM)
-            + Constants.FuelSystemConstants.LAUNCH_KV * targetRPM;
-
-        leftController.setReference(
-            targetRPM,
-            ControlType.kVelocity,
-            ClosedLoopSlot.kSlot0,
-            ff);
-
-        rightController.setReference(
-            targetRPM,
-            ControlType.kVelocity,
-            ClosedLoopSlot.kSlot0,
-            ff);
-
-        isAtSpeedLatched = false;
-      }
-
-      lastState = currentState;
-    }
-
-    // ===============================
-    // At Speed Logic (Both Wheels)
-    // ===============================
-
-    double leftError = currentSetpointRPM - leftEncoder.getVelocity();
-    double rightError = currentSetpointRPM - rightEncoder.getVelocity();
-
-    if (currentSetpointRPM > 0.0) {
-
-      boolean leftAtSpeed = Math.abs(leftError) < rpmTolerance;
-      boolean rightAtSpeed = Math.abs(rightError) < rpmTolerance;
-
-      if (!isAtSpeedLatched && leftAtSpeed && rightAtSpeed) {
-        isAtSpeedLatched = true;
-      }
-
-      if (isAtSpeedLatched &&
-          (Math.abs(leftError) > rpmTolerance * 2.0 ||
-           Math.abs(rightError) > rpmTolerance * 2.0)) {
-        isAtSpeedLatched = false;
-      }
+      // Coast to stop
+      m_leftLauncher.set(0.0);
+      m_rightLauncher.set(0.0);
+      isAtSpeed = false;
 
     } else {
-      isAtSpeedLatched = false;
+
+      // Feedforward
+      double ff =
+          Constants.FuelSystemConstants.LAUNCH_KS * Math.signum(currentSetpointRPM)
+          + Constants.FuelSystemConstants.LAUNCH_KV * currentSetpointRPM;
+
+      // Command velocity EVERY LOOP (more reliable)
+      leftController.setReference(
+          currentSetpointRPM,
+          ControlType.kVelocity,
+          ClosedLoopSlot.kSlot0,
+          ff);
+
+      rightController.setReference(
+          currentSetpointRPM,
+          ControlType.kVelocity,
+          ClosedLoopSlot.kSlot0,
+          ff);
+
+      // Check speed
+      double leftRPM = leftEncoder.getVelocity();
+      double rightRPM = rightEncoder.getVelocity();
+
+      double leftError = currentSetpointRPM - leftRPM;
+      double rightError = currentSetpointRPM - rightRPM;
+
+      boolean leftReady = Math.abs(leftError) < rpmTolerance;
+      boolean rightReady = Math.abs(rightError) < rpmTolerance;
+
+      isAtSpeed = leftReady && rightReady;
+
+      // ===============================
+      // Dashboard
+      // ===============================
+
+      Dashboard.logNumber("Launcher Left RPM", () -> leftRPM);
+      Dashboard.logNumber("Launcher Right RPM", () -> rightRPM);
+      Dashboard.logNumber("Launcher Target RPM", () -> currentSetpointRPM);
+      Dashboard.logBoolean("Launcher At Speed", () -> isAtSpeed);
     }
 
-    // ===============================
-    // Dashboard Logging
-    // ===============================
-
-    Dashboard.logBoolean("Launcher At Speed", () -> isAtSpeedLatched);
-    Dashboard.logNumber("Launcher Target RPM", () -> currentSetpointRPM);
-
-    Dashboard.logNumber("Launcher Left RPM", leftEncoder::getVelocity);
-    Dashboard.logNumber("Launcher Right RPM", rightEncoder::getVelocity);
-
-    Dashboard.logNumber("Launcher Left Error", () -> leftError);
-    Dashboard.logNumber("Launcher Right Error", () -> rightError);
-
-    Dashboard.logString("Launcher State", () -> currentState.toString());
+      Dashboard.logString("Launcher State", () -> currentState.toString());
   }
 }

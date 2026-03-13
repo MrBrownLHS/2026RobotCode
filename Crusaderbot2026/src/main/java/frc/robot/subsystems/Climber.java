@@ -37,6 +37,7 @@ public class Climber extends SubsystemBase {
         MotorType.kBrushless);
 
     SparkMaxConfig config = new SparkMaxConfig();
+    config.inverted(true);
     config.idleMode(IdleMode.kBrake);
     config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);

@@ -28,15 +28,14 @@ public class Constants {
         public static final double INTAKE_MOTOR_COLLECT_SPEED = -0.25; //Tune during testing
         public static final double INTAKE_MOTOR_LAUNCH_SPEED = -0.35; //Tune during testing  
         public static final double INTAKE_MOTOR_REVERSE_SPEED = 0.15; //Tune during testing --- IGNORE ---
-        public static final int INDEX_MOTOR_ID = 14;
         public static final double INDEX_MOTOR_SPEED = -0.15; //Tune during testing
     //Launcher
-        public static final int LAUNCH_MOTOR_RIGHT_ID = 14;
-        public static final int LAUNCH_MOTOR_LEFT_ID = 20; //Do we need a second Launcher Motor?
+        public static final int LAUNCH_MOTOR_RIGHT_ID = 18;
+        public static final int LAUNCH_MOTOR_LEFT_ID = 20; 
         public static final double LAUNCH_FAR_RPM = 3000; // Tune
         public static final double LAUNCH_CLOSE_RPM = 2300; // Tune
         public static final double LAUNCH_COLLECT_RPM = 800; // Tune
-        public static final double LAUNCH_RPM_TOLERANCE = 150; // Tune
+        public static final double LAUNCH_RPM_TOLERANCE = 300; // Tune
 
         public static final double LAUNCH_P = 0.00015;
         public static final double LAUNCH_I = 0.0;
@@ -50,8 +49,8 @@ public class Constants {
         public static final double KICKER_FAR_SPEED = -0.50; //Tune during testing
     //Agitator
         public static final int AGITATOR_MOTOR_ID = 16;
-        public static final double AGITATOR_AGITATE_SPEED = -0.5; //Tune
-        public static final double AGITATOR_REVERSE_SPEED = 0.5; //Tune during testing
+        public static final double AGITATOR_AGITATE_SPEED = -0.15; //Tune
+        public static final double AGITATOR_REVERSE_SPEED = 0.515; //Tune during testing
     //Hopper
         public static final int HOPPER_MOTOR_ID = 17;
         public static final int HOPPER_HOME_SWITCH_DIO = 0;      
@@ -64,8 +63,8 @@ public class Constants {
     }
   
   public static final class ClimberConstants {
-        public static final int CLIMBER_WINCH_MOTOR_ID = 18;
-        //public static final int CLIMBER_WINCH_RIGHT_MOTOR_ID = 19;
+        public static final int CLIMBER_WINCH_MOTOR_ID = 14;
+        
         
 
     // DIO ports for per-side home limit switches
@@ -73,11 +72,11 @@ public class Constants {
         public static final int CLIMBER_RIGHT_HOME_DIO = 2;
 
     // Maximum allowed mismatch (rotations) between left and right before faulting
-        public static final double CLIMBER_MISMATCH_TOLERANCE = 0.5; // rotations
+        public static final double CLIMBER_MISMATCH_TOLERANCE = 3.0; // rotations
         public static final double CLIMBER_MIN_EXTENSION = 0.0; //Tune during testing
-        public static final double CLIMBER_MAX_EXTENSION = 15.0; //Tune during testing
-        public static final double CLIMBER_EXTEND_SPEED = 0.25; //Tune during testing
-        public static final double CLIMBER_RETRACT_SPEED = -0.15; //Tune during testing
+        public static final double CLIMBER_MAX_EXTENSION = 330.0; //Tune during testing
+        public static final double CLIMBER_EXTEND_SPEED = 0.50; //Tune during testing
+        public static final double CLIMBER_RETRACT_SPEED = -0.25; //Tune during testing
    }
 
   

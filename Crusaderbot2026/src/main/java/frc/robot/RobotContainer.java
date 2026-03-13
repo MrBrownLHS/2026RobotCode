@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import frc.robot.commands.LaunchCloseCommand;
@@ -140,11 +140,6 @@ public class RobotContainer {
     // Configure button bindings for control mappings
     configureBindings();
 
-  //   DriverHUD.logSwerve(swerveSubsystem);
-  //   DriverHUD.logLauncher(launch);
-  //   DriverHUD.logSuperSystem(superSystem);
-  // DriverHUD.logReadyFlags(launch, intake);
-  //   DriverHUD.logClimber(climber);
   }
 
    
@@ -200,16 +195,18 @@ public class RobotContainer {
 
       
     // Climber Controls: POV for up/retract and continuous reach commands
-    CopilotCommandController.pov(0).onTrue(
-    new RunCommand(
-        () -> climber.setState(
-          Climber.State.EXTENDING), climber)
+    CopilotCommandController.pov(0).whileTrue(
+    new StartEndCommand(
+        () -> climber.setState(Climber.State.EXTENDING),  // on start
+        () -> climber.setState(Climber.State.IDLE),       // on release
+        climber)
     );       
 
     CopilotCommandController.pov(180).whileTrue(
-      new RunCommand (
-        () -> climber.setState(
-          Climber.State.CLIMBING), climber)
+      new StartEndCommand (
+        () -> climber.setState(Climber.State.CLIMBING),  // on start
+        () -> climber.setState(Climber.State.IDLE),       // on release
+        climber)
     );
 
   }
