@@ -50,6 +50,8 @@ public class RobotContainer {
   private final JoystickButton resetHeading;
   private final JoystickButton robotCentric;
   private final JoystickButton slowDriveMode;
+
+  private final SendableChooser<Command> autoChooser;
   
   // Co-pilot controller (uses Command-based helpers)
   //private final Joystick CoPilotController = new Joystick(1);
@@ -86,7 +88,7 @@ public class RobotContainer {
   private final Swerve swerveSubsystem = new Swerve();
 
   // Dashboard chooser for autonomous selection
-  private final SendableChooser<Command> autoChooser;
+  
 
   // Slew rate limiters to smooth joystick inputs for translation/rotation
   private final SlewRateLimiter translationLimiter = new SlewRateLimiter(2.9);
@@ -103,9 +105,9 @@ public class RobotContainer {
         
     autoChooser = new SendableChooser<>();
     // Populate autonomous chooser (default safe/no-op + Auto Center Launch Climb)
-    autoChooser.setDefaultOption("Do Nothing", new InstantCommand());
-    autoChooser.addOption("Auto Rotate Launch", new AutoRotateLaunch(swerveSubsystem, launch));
-    SmartDashboard.putData("Auto Mode", autoChooser);
+    autoChooser.setDefaultOption("DoNothing", new InstantCommand());
+    autoChooser.addOption("AutoRotateLaunch", new AutoRotateLaunch(swerveSubsystem, launch, hopper));
+    SmartDashboard.putData("AutoChooser", autoChooser);
 
 
     UsbCamera camera = CameraServer.startAutomaticCapture(0);

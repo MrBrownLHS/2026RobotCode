@@ -23,7 +23,7 @@ public class AutoSwerve extends Command {
     // PID controllers for X, Y movement, and rotation
     private final PIDController xController = new PIDController(2.0, 0.0, 0.0); // tune
     private final PIDController yController = new PIDController(2.0, 0.0, 0.0); // tune
-    private final PIDController rotationController = new PIDController(1.5, 0.0, 0.0); // tune
+    private final PIDController rotationController = new PIDController(0.2, 0.0, 0.0); // tune
 
     /**
      * Use this constructor for fixed rotation speed (legacy behavior)
