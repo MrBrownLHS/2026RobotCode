@@ -12,11 +12,12 @@ import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Climber;
+import frc.robot.subsystems.Hopper;
 
 
 public class AutoRotateLaunch extends SequentialCommandGroup {
 
-    public AutoRotateLaunch(Swerve swerve, Launcher launcher) {
+    public AutoRotateLaunch(Swerve swerve, Launcher launcher, Hopper hopper) {
         double driveSpeed = 0.5; // m/s
         double slowDownDistance = 0.5; // meters, start slowing down near target
 
@@ -28,6 +29,10 @@ public class AutoRotateLaunch extends SequentialCommandGroup {
             new WaitCommand(0.1), // small delay to ensure rotation completes
             new SequentialCommandGroup(
                 new WaitCommand(0.1), // optional short pause
+                new StartEndCommand(
+                    () -> hopper.setState(Hopper.State.EXTENDING),
+                    () -> hopper.setState(Hopper.State.IDLE)
+                ).withTimeout(1.0),
                 new StartEndCommand(
                     () -> launcher.setState(Launcher.State.LAUNCH_CLOSE),
                     () -> launcher.setState(Launcher.State.IDLE)
