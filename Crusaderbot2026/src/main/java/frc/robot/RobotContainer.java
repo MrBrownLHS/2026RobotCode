@@ -27,7 +27,7 @@ import frc.robot.commands.LaunchFarCommand;
 import frc.robot.commands.ReverseCollectorCommand;
 import frc.robot.commands.StopAllCommand;
 import frc.robot.commands.CollectCommand;
-import frc.robot.commands.AutoCenterLaunchClimb;
+import frc.robot.commands.AutoRotateLaunch;
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
 
@@ -104,7 +104,7 @@ public class RobotContainer {
     autoChooser = new SendableChooser<>();
     // Populate autonomous chooser (default safe/no-op + Auto Center Launch Climb)
     autoChooser.setDefaultOption("Do Nothing", new InstantCommand());
-    autoChooser.addOption("Auto Center Launch Climb", new AutoCenterLaunchClimb(swerveSubsystem, launch, climber));
+    autoChooser.addOption("Auto Rotate Launch", new AutoRotateLaunch(swerveSubsystem, launch));
     SmartDashboard.putData("Auto Mode", autoChooser);
 
 

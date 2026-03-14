@@ -25,10 +25,10 @@ public class Constants {
   public static final class FuelSystemConstants {
     //Intake
         public static final int INTAKE_MOTOR_ID = 13;
-        public static final double INTAKE_MOTOR_COLLECT_SPEED = -0.25; //Tune during testing
-        public static final double INTAKE_MOTOR_LAUNCH_SPEED = -0.35; //Tune during testing  
+        public static final double INTAKE_MOTOR_COLLECT_SPEED = -0.30; //Tune during testing
+        public static final double INTAKE_MOTOR_LAUNCH_SPEED = -0.75; //Tune during testing  
         public static final double INTAKE_MOTOR_REVERSE_SPEED = 0.15; //Tune during testing --- IGNORE ---
-        public static final double INDEX_MOTOR_SPEED = -0.15; //Tune during testing
+        
     //Launcher
         public static final int LAUNCH_MOTOR_RIGHT_ID = 18;
         public static final int LAUNCH_MOTOR_LEFT_ID = 20; 
@@ -45,15 +45,15 @@ public class Constants {
     //Kicker
         public static final int KICKER_MOTOR_ID = 15;
         public static final double KICKER_COLLECT_SPEED = -0.25; //Tune during testing
-        public static final double KICKER_CLOSE_SPEED = -0.40; //Tune during testing
-        public static final double KICKER_FAR_SPEED = -0.50; //Tune during testing
+        public static final double KICKER_CLOSE_SPEED = -0.50; //Tune during testing
+        public static final double KICKER_FAR_SPEED = -0.75; //Tune during testing
     //Agitator
         public static final int AGITATOR_MOTOR_ID = 16;
         public static final double AGITATOR_AGITATE_SPEED = -0.15; //Tune
-        public static final double AGITATOR_REVERSE_SPEED = 0.515; //Tune during testing
+        public static final double AGITATOR_REVERSE_SPEED = 0.15; //Tune during testing
     //Hopper
         public static final int HOPPER_MOTOR_ID = 17;
-        public static final int HOPPER_HOME_SWITCH_DIO = 0;      
+        public static final int HOPPER_HOME_SWITCH_DIO = 0;
         public static final double HOPPER_EXTEND_SPEED = 0.15; //Tune during testing
         public static final double HOPPER_EXTEND_POSITION = 8.0; //Tune during testing
         public static final double HOPPER_RETRACT_SPEED = -0.15;
@@ -72,9 +72,9 @@ public class Constants {
         public static final int CLIMBER_RIGHT_HOME_DIO = 2;
 
     // Maximum allowed mismatch (rotations) between left and right before faulting
-        public static final double CLIMBER_MISMATCH_TOLERANCE = 3.0; // rotations
+        public static final double CLIMBER_MISMATCH_TOLERANCE = 15.0; // rotations
         public static final double CLIMBER_MIN_EXTENSION = 0.0; //Tune during testing
-        public static final double CLIMBER_MAX_EXTENSION = 330.0; //Tune during testing
+        public static final double CLIMBER_MAX_EXTENSION = 500.0; //Tune during testing
         public static final double CLIMBER_EXTEND_SPEED = 0.50; //Tune during testing
         public static final double CLIMBER_RETRACT_SPEED = -0.25; //Tune during testing
    }
