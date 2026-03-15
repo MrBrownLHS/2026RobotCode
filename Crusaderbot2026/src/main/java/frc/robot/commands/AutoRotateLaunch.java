@@ -10,11 +10,12 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SuperSystem;
+import frc.robot.subsystems.Hopper;
 
 
 public class AutoRotateLaunch extends SequentialCommandGroup {
 
-    public AutoRotateLaunch(Swerve swerve, SuperSystem superSystem) {
+    public AutoRotateLaunch(Swerve swerve, SuperSystem superSystem, Hopper hopper) {
 
         addCommands(
 
@@ -39,11 +40,16 @@ public class AutoRotateLaunch extends SequentialCommandGroup {
 
             new WaitCommand(0.2),
 
+            new RunCommand(
+                () -> hopper.setState(Hopper.State.EXTENDING),
+                hopper
+            ).withTimeout(1.5),
+
             // Activate the launcher system
             new RunCommand(
                 () -> superSystem.setWantedState(SuperSystem.WantedState.LAUNCH_CLOSE),
                 superSystem
-            ).withTimeout(5.0),
+            ).withTimeout(8.0),
 
             // Return to idle
             new RunCommand(

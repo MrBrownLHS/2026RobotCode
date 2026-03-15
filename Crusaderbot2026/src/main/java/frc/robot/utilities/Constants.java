@@ -32,8 +32,8 @@ public class Constants {
     //Launcher
         public static final int LAUNCH_MOTOR_RIGHT_ID = 18;
         public static final int LAUNCH_MOTOR_LEFT_ID = 20; 
-        public static final double LAUNCH_FAR_RPM = 3000; // Tune
-        public static final double LAUNCH_CLOSE_RPM = 2300; // Tune
+        public static final double LAUNCH_FAR_RPM = 3500; // Tune
+        public static final double LAUNCH_CLOSE_RPM = 2700; // Tune
         public static final double LAUNCH_COLLECT_RPM = 800; // Tune
         public static final double LAUNCH_RPM_TOLERANCE = 300; // Tune
 
@@ -45,7 +45,7 @@ public class Constants {
     //Kicker
         public static final int KICKER_MOTOR_ID = 15;
         public static final double KICKER_COLLECT_SPEED = -0.25; //Tune during testing
-        public static final double KICKER_CLOSE_SPEED = -0.50; //Tune during testing
+        public static final double KICKER_CLOSE_SPEED = -0.75; //Tune during testing
         public static final double KICKER_FAR_SPEED = -0.75; //Tune during testing
     //Agitator
         public static final int AGITATOR_MOTOR_ID = 16;
@@ -75,8 +75,8 @@ public class Constants {
         public static final double CLIMBER_MISMATCH_TOLERANCE = 15.0; // rotations
         public static final double CLIMBER_MIN_EXTENSION = 0.0; //Tune during testing
         public static final double CLIMBER_MAX_EXTENSION = 500.0; //Tune during testing
-        public static final double CLIMBER_EXTEND_SPEED = 0.50; //Tune during testing
-        public static final double CLIMBER_RETRACT_SPEED = -0.25; //Tune during testing
+        public static final double CLIMBER_EXTEND_SPEED = 0.75; //Tune during testing
+        public static final double CLIMBER_RETRACT_SPEED = -0.50; //Tune during testing
    }
 
   

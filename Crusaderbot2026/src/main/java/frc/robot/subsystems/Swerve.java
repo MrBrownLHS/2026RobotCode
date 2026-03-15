@@ -206,9 +206,21 @@ public class Swerve extends SubsystemBase {
     }
 
     public void turnToAngle(double targetAngle) {
+
         double error = MathUtil.inputModulus(targetAngle - getHeading(), -180, 180);
-        double rotSpeed = error * 0.01;  // simple proportional control
-        rotSpeed = MathUtil.clamp(rotSpeed, -0.8, 0.8);
+
+        // Stop if within tolerance
+        if (Math.abs(error) < 7) {
+            stop();
+            return;
+        }
+
+        // Proportional rotation control
+        double rotSpeed = error * 0.006;
+
+        // Limit rotation speed
+        rotSpeed = MathUtil.clamp(rotSpeed, -0.6, 0.6);
+
         drive(new Translation2d(0, 0), rotSpeed, false, false);
     }
 
