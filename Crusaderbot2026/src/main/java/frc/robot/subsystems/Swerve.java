@@ -205,6 +205,17 @@ public class Swerve extends SubsystemBase {
         gyroscope.setYaw(0.0);
     }
 
+    public void turnToAngle(double targetAngle) {
+        double error = MathUtil.inputModulus(targetAngle - getHeading(), -180, 180);
+        double rotSpeed = error * 0.01;  // simple proportional control
+        rotSpeed = MathUtil.clamp(rotSpeed, -0.8, 0.8);
+        drive(new Translation2d(0, 0), rotSpeed, false, false);
+    }
+
+    public boolean atAngle(double targetAngle) {
+        return Math.abs(MathUtil.inputModulus(targetAngle - getHeading(), -180, 180)) < 5;
+    }
+
     public void stop() {
         for(NEOSwerveModule swerveModule : swerveModules) {
             swerveModule.stop();
