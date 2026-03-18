@@ -32,6 +32,7 @@ public class Constants {
     //Launcher
         public static final int LAUNCH_MOTOR_RIGHT_ID = 18;
         public static final int LAUNCH_MOTOR_LEFT_ID = 20; 
+        public static final double YEET_PASS_RPM = 4500;
         public static final double LAUNCH_FAR_RPM = 3500; // Tune
         public static final double LAUNCH_CLOSE_RPM = 2700; // Tune
         public static final double LAUNCH_COLLECT_RPM = 800; // Tune
@@ -42,11 +43,10 @@ public class Constants {
         public static final double LAUNCH_D = 0.0;
         public static final double LAUNCH_KS = 0.0;
         public static final double LAUNCH_KV = 0.003;
-    //Kicker
-        public static final int KICKER_MOTOR_ID = 15;
-        public static final double KICKER_COLLECT_SPEED = -0.25; //Tune during testing
-        public static final double KICKER_CLOSE_SPEED = -0.75; //Tune during testing
-        public static final double KICKER_FAR_SPEED = -0.75; //Tune during testing
+    //Rear Intake
+        public static final int REARINTAKE_MOTOR_ID = 15;
+        public static final double REARINTAKE_MOTOR_COLLECT_SPEED = 0.50; //Tune during testing
+        public static final double REARINTAKE_MOTOR_REVERSE_SPEED = -0.25; //Tune during testing
     //Agitator
         public static final int AGITATOR_MOTOR_ID = 16;
         public static final double AGITATOR_AGITATE_SPEED = -0.15; //Tune
@@ -59,7 +59,7 @@ public class Constants {
         public static final double HOPPER_RETRACT_SPEED = -0.15;
         public static final double HOPPER_RETRACT_POSITION = 0.0; //Tune during testing
         public static final double HOPPER_SHUFFLE_SPEED = 0.15; //Tune during testing
-        public static final double HOPPER_SHUFFLE_POSITION = 4.0; //
+        public static final double HOPPER_SHUFFLE_POSITION = 6.0; //
     }
   
   public static final class ClimberConstants {

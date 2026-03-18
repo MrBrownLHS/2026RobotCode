@@ -12,23 +12,24 @@ public class SuperSystem extends SubsystemBase {
   /** Creates a new SuperSystem. */
   public enum WantedState {
     IDLE,
-    COLLECT,
+    FRONT_COLLECT,
     LAUNCH_FAR,
     LAUNCH_CLOSE,
+    YEET_PASS,
     REVERSE
   }
 
   private WantedState wantedState = WantedState.IDLE;
 
   private final Launcher launcher;
-  private final Kicker kicker;
-  private final Intake intake;
+  private final RearIntake rearIntake;
+  private final FrontIntake intake;
   private final Hopper hopper;
   private final Agitator agitator;
 
-  public SuperSystem(Launcher launcher, Kicker kicker, Intake intake, Hopper hopper, Agitator agitator) {
+  public SuperSystem(Launcher launcher, RearIntake rearIntake, FrontIntake intake, Hopper hopper, Agitator agitator) {
     this.launcher = launcher;
-    this.kicker = kicker;
+    this.rearIntake = rearIntake;
     this.intake = intake;
     this.hopper = hopper;
     this.agitator = agitator;
@@ -52,18 +53,17 @@ public class SuperSystem extends SubsystemBase {
       switch (wantedState) {
         case IDLE:
           launcher.setState(Launcher.State.IDLE);
-          kicker.setState(Kicker.State.IDLE);
-          intake.setState(Intake.State.IDLE);
+          rearIntake.setState(RearIntake.State.IDLE);
+          intake.setState(FrontIntake.State.IDLE);
           hopper.setState(Hopper.State.IDLE);
           agitator.setState(Agitator.State.IDLE);
           break;
 
-        case COLLECT:
+        case FRONT_COLLECT:
           launcher.setState(Launcher.State.LAUNCH_COLLECT);
 
           if (launcher.atSpeed()) {
-              kicker.setState(Kicker.State.KICK_COLLECT);
-              intake.setState(Intake.State.INTAKE_COLLECT);
+              intake.setState(FrontIntake.State.INTAKE_COLLECT);
               agitator.setState(Agitator.State.IDLE); 
           }
             break;
@@ -74,8 +74,7 @@ public class SuperSystem extends SubsystemBase {
               launcher.setState(Launcher.State.LAUNCH_FAR);
 
           if (launcher.atSpeed()) {
-              kicker.setState(Kicker.State.KICK_FAR);
-              intake.setState(Intake.State.INTAKE_LAUNCH);
+              intake.setState(FrontIntake.State.INTAKE_LAUNCH);
               agitator.setState(Agitator.State.AGITATE);
          
               }
@@ -86,22 +85,29 @@ public class SuperSystem extends SubsystemBase {
             launcher.setState(Launcher.State.LAUNCH_CLOSE);
 
             if (launcher.atSpeed()) {
-                kicker.setState(Kicker.State.KICK_CLOSE);
-                intake.setState(Intake.State.INTAKE_LAUNCH);
+                intake.setState(FrontIntake.State.INTAKE_LAUNCH);
                 agitator.setState(Agitator.State.AGITATE);  
+            }
+            break;
+        
+        case YEET_PASS:
+
+            launcher.setState(Launcher.State.YEET_PASS);
+
+            if (launcher.atSpeed()) {
+              intake.setState(FrontIntake.State.INTAKE_LAUNCH);
             }
             break;
 
         case REVERSE:
-          kicker.setState(Kicker.State.KICK_REVERSE);
-          intake.setState(Intake.State.INTAKE_REVERSE);
+          intake.setState(FrontIntake.State.INTAKE_REVERSE);
           agitator.setState(Agitator.State.REVERSE);
           break;
       }
       Dashboard.logString("SuperSystem Wanted State", () -> wantedState.toString());
       // Aggregated readiness flags
       Dashboard.logBoolean("ReadyToShoot", () -> launcher.atSpeed());
-      Dashboard.logBoolean("ReadyToCollect", () -> intake.getState() == Intake.State.INTAKE_COLLECT);
+      Dashboard.logBoolean("ReadyToCollect", () -> intake.getState() == FrontIntake.State.INTAKE_COLLECT);
     //   DriverHUD.logString("SuperSystem State", () -> wantedState.toString());
     // // Also publish the ready flags to the driver HUD for live SmartDashboard display
     //   DriverHUD.logReadyFlags(launcher, intake);

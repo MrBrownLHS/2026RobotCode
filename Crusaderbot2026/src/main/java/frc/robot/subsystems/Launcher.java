@@ -21,7 +21,8 @@ public class Launcher extends SubsystemBase {
     IDLE,
     LAUNCH_FAR,
     LAUNCH_CLOSE,
-    LAUNCH_COLLECT
+    LAUNCH_COLLECT,
+    YEET_PASS
   }
 
   private State currentState = State.IDLE;
@@ -122,6 +123,8 @@ public class Launcher extends SubsystemBase {
         return Constants.FuelSystemConstants.LAUNCH_CLOSE_RPM;
       case LAUNCH_COLLECT:
         return Constants.FuelSystemConstants.LAUNCH_COLLECT_RPM;
+      case YEET_PASS:
+        return Constants.FuelSystemConstants.YEET_PASS_RPM;
       default:
         return 0.0;
     }

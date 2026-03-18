@@ -17,7 +17,7 @@ import frc.robot.utilities.Dashboard;
 
 
 
-public class Intake extends SubsystemBase {
+public class FrontIntake extends SubsystemBase {
 
     public enum State {
       IDLE,
@@ -34,7 +34,7 @@ public class Intake extends SubsystemBase {
   
  
   /** Creates a new Intake. */
-  public Intake() {
+  public FrontIntake() {
     m_Intake = new SparkMax(Constants.FuelSystemConstants.INTAKE_MOTOR_ID, MotorType.kBrushless);
 
     SparkMaxConfig config = new SparkMaxConfig();

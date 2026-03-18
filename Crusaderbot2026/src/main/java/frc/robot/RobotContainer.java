@@ -24,6 +24,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import frc.robot.commands.LaunchCloseCommand;
 import frc.robot.commands.LaunchFarCommand;
+import frc.robot.commands.YeetPassCommand;
 import frc.robot.commands.ReverseCollectorCommand;
 import frc.robot.commands.StopAllCommand;
 import frc.robot.commands.CollectCommand;
@@ -35,8 +36,8 @@ import frc.robot.commands.SwerveController;
 
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.Climber;
-import frc.robot.subsystems.Kicker;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.RearIntake;
+import frc.robot.subsystems.FrontIntake;
 import frc.robot.subsystems.Launcher;
 import frc.robot.subsystems.Agitator;
 import frc.robot.subsystems.Hopper;
@@ -61,20 +62,21 @@ public class RobotContainer {
   // Subsystem instances created once and shared across commands
   
   private final Climber climber = new Climber();
-  private final Kicker kicker = new Kicker();
+  private final RearIntake rearIntake = new RearIntake();
   private final Agitator agitator = new Agitator();
-  private final Intake intake = new Intake();
+  private final FrontIntake intake = new FrontIntake();
   private final Launcher launch = new Launcher();
   private final Hopper hopper = new Hopper();
 
   // SuperSystem coordinates states across these shared subsystems
-  private final SuperSystem superSystem = new SuperSystem(launch, kicker, intake, hopper, agitator);
+  private final SuperSystem superSystem = new SuperSystem(launch, rearIntake, intake, hopper, agitator);
 
   private final LaunchFarCommand launchFarCommand = new LaunchFarCommand(superSystem);
   private final LaunchCloseCommand launchCloseCommand = new LaunchCloseCommand(superSystem);
   private final StopAllCommand stopAllCommand = new StopAllCommand(superSystem);
   private final CollectCommand collectCommand = new CollectCommand(superSystem);
   private final ReverseCollectorCommand reverseCollectorCommand = new ReverseCollectorCommand(superSystem);
+  private final YeetPassCommand yeetPassCommand = new YeetPassCommand(superSystem);
 
    
 
@@ -176,7 +178,15 @@ public class RobotContainer {
 
     CopilotCommandController.leftTrigger(0.5).whileTrue(launchCloseCommand);
         
+    CopilotCommandController.a().whileTrue(
+      new RunCommand (
+        () -> hopper.setState(
+          Hopper.State.SHUFFLE), hopper)
+      );
+    
     CopilotCommandController.x().onTrue(stopAllCommand);
+
+    CopilotCommandController.y().whileTrue(yeetPassCommand);
 
     CopilotCommandController.rightBumper().whileTrue(collectCommand);
 
