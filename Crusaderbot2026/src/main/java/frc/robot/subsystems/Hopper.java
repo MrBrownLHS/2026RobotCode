@@ -10,7 +10,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
@@ -30,8 +29,6 @@ public class Hopper extends SubsystemBase {
     private final SparkMax hopperMotor;
     private final RelativeEncoder hopperEncoder;
     private final SparkClosedLoopController hopperController;
-
-    private final DigitalInput homeSwitch;
 
     // Tunable Positions
     private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION; // ~10
@@ -89,7 +86,6 @@ public class Hopper extends SubsystemBase {
         if (newState != currentState) {
             currentState = newState;
 
-            // Reset shuffle direction when entering shuffle
             if (newState == State.SHUFFLE) {
                 shuffleGoingOut = true;
                 currentTarget = openPosition;
