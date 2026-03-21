@@ -195,31 +195,41 @@ public class RobotContainer {
 
     CopilotCommandController.pov(90).whileTrue(
       new RunCommand (
-        () -> hopper.setState(
-          Hopper.State.EXTENDING), hopper)
+        () -> superSystem.setWantedState(
+          SuperSystem.WantedState.EXTEND_HOPPER), superSystem)
     );
 
     CopilotCommandController.pov(270).whileTrue(
       new RunCommand (
-        () -> hopper.setState(
-          Hopper.State.RETRACTING), hopper)
+        () -> superSystem.setWantedState(
+          SuperSystem.WantedState.RETRACT_HOPPER), superSystem)
     );
 
       
-    // Climber Controls: POV for up/retract and continuous reach commands
-    CopilotCommandController.pov(0).whileTrue(
-    new StartEndCommand(
-        () -> climber.setState(Climber.State.EXTENDING),  // on start
-        () -> climber.setState(Climber.State.IDLE),       // on release
-        climber)
-    );       
+    // // Climber Controls: POV for up/retract and continuous reach commands
+    // CopilotCommandController.pov(0).whileTrue(
+    // new StartEndCommand(
+    //     () -> climber.setState(Climber.State.EXTENDING),  // on start
+    //     () -> climber.setState(Climber.State.IDLE),       // on release
+    //     climber)
+    //       Hopper.State.RETRACTING), hopper)
+    // );
 
-    CopilotCommandController.pov(180).whileTrue(
-      new StartEndCommand (
-        () -> climber.setState(Climber.State.CLIMBING),  // on start
-        () -> climber.setState(Climber.State.IDLE),       // on release
-        climber)
-    );
+      
+    // // Climber Controls: POV for up/retract and continuous reach commands
+    // CopilotCommandController.pov(0).whileTrue(
+    // new StartEndCommand(
+    //     () -> climber.setState(Climber.State.EXTENDING),  // on start
+    //     () -> climber.setState(Climber.State.IDLE),       // on release
+    //     climber)
+    // );       
+
+    // CopilotCommandController.pov(180).whileTrue(
+    //   new StartEndCommand (
+    //     () -> climber.setState(Climber.State.CLIMBING),  // on start
+    //     () -> climber.setState(Climber.State.IDLE),       // on release
+    //     climber)
+    // );
 
   }
 

@@ -47,6 +47,13 @@ public class Constants {
         public static final int REARINTAKE_MOTOR_ID = 15;
         public static final double REARINTAKE_MOTOR_COLLECT_SPEED = 0.50; //Tune during testing
         public static final double REARINTAKE_MOTOR_REVERSE_SPEED = -0.25; //Tune during testing
+    //Rear Intake Lift  
+        public static final int REAR_INTAKE_LIFT_MOTOR_ID = 14;
+        public static final double REAR_INTAKE_LIFT_SPEED = -0.15;
+        public static final double REAR_INTAKE_EXTEND_SPEED = 0.25;
+        public static final double REAR_INTAKE_LIFT_STORED_POSITION = 0.0; //Tune during testing
+        public static final double REAR_INTAKE_LIFT_LIFTED_POSITION = -100.00; //Tune during testing
+        public static final double REAR_INTAKE_LIFT_EXTEND_POSITION = 100.0; //Tune during testing
     //Agitator
         public static final int AGITATOR_MOTOR_ID = 16;
         public static final double AGITATOR_AGITATE_SPEED = -0.15; //Tune
@@ -60,23 +67,8 @@ public class Constants {
         public static final double HOPPER_RETRACT_POSITION = 0.0; //Tune during testing
         public static final double HOPPER_SHUFFLE_SPEED = 0.15; //Tune during testing
         public static final double HOPPER_SHUFFLE_POSITION = 6.0; //
-    }
-  
-  public static final class ClimberConstants {
-        public static final int CLIMBER_WINCH_MOTOR_ID = 14;
+    
         
-        
-
-    // DIO ports for per-side home limit switches
-        public static final int CLIMBER_LEFT_HOME_DIO = 1;
-        public static final int CLIMBER_RIGHT_HOME_DIO = 2;
-
-    // Maximum allowed mismatch (rotations) between left and right before faulting
-        public static final double CLIMBER_MISMATCH_TOLERANCE = 15.0; // rotations
-        public static final double CLIMBER_MIN_EXTENSION = 0.0; //Tune during testing
-        public static final double CLIMBER_MAX_EXTENSION = 500.0; //Tune during testing
-        public static final double CLIMBER_EXTEND_SPEED = 0.75; //Tune during testing
-        public static final double CLIMBER_RETRACT_SPEED = -0.50; //Tune during testing
    }
 
   

@@ -16,6 +16,8 @@ public class SuperSystem extends SubsystemBase {
     LAUNCH_FAR,
     LAUNCH_CLOSE,
     YEET_PASS,
+    RETRACT_HOPPER,
+    EXTEND_HOPPER,
     REVERSE
   }
 
@@ -26,13 +28,15 @@ public class SuperSystem extends SubsystemBase {
   private final FrontIntake intake;
   private final Hopper hopper;
   private final Agitator agitator;
+  private final RearIntakeLift rearIntakeLift;
 
-  public SuperSystem(Launcher launcher, RearIntake rearIntake, FrontIntake intake, Hopper hopper, Agitator agitator) {
+  public SuperSystem(Launcher launcher, RearIntake rearIntake, FrontIntake intake, Hopper hopper, Agitator agitator, RearIntakeLift rearIntakeLift) {
     this.launcher = launcher;
     this.rearIntake = rearIntake;
     this.intake = intake;
     this.hopper = hopper;
     this.agitator = agitator;
+    this.rearIntakeLift = rearIntakeLift;
   }
 
   public void setWantedState(WantedState newWantedState) {
@@ -57,6 +61,8 @@ public class SuperSystem extends SubsystemBase {
           intake.setState(FrontIntake.State.IDLE);
           hopper.setState(Hopper.State.IDLE);
           agitator.setState(Agitator.State.IDLE);
+          rearIntakeLift.setState(RearIntakeLift.State.STORED);
+
           break;
 
         case FRONT_COLLECT:
@@ -96,6 +102,21 @@ public class SuperSystem extends SubsystemBase {
 
             if (launcher.atSpeed()) {
               intake.setState(FrontIntake.State.INTAKE_LAUNCH);
+            }
+            break;
+
+        case RETRACT_HOPPER:
+            rearIntakeLift.setState(RearIntakeLift.State.STORED);
+
+            if (rearIntakeLift.atSetpoint()) {
+              hopper.setState(Hopper.State.RETRACTING);
+            }
+            break;
+        case EXTEND_HOPPER:
+            hopper.setState(Hopper.State.EXTENDING);
+
+            if (hopper.getState() == Hopper.State.EXTENDING) {
+             rearIntakeLift.setState(RearIntakeLift.State.EXTENDED);
             }
             break;
 

@@ -31,9 +31,8 @@ public class Hopper extends SubsystemBase {
     private final SparkClosedLoopController hopperController;
 
     // Tunable Positions
-    private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION; // ~10
-
-    private final double shufflePosition = Constants.FuelSystemConstants.HOPPER_SHUFFLE_POSITION; // ~5
+    private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION;
+    private final double shufflePosition = Constants.FuelSystemConstants.HOPPER_SHUFFLE_POSITION;
 
     private final double positionTolerance = 0.15;
 
@@ -54,13 +53,10 @@ public class Hopper extends SubsystemBase {
         config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
         config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
 
-        // ---- Closed Loop Position Control ----
+        // Closed-loop tuning
         config.closedLoop
-            .pid(
-                0.4,   // kP (start here, tune lightly)
-                0.0,   // kI
-                0.0)   // kD
-            .outputRange(-0.15, 0.15);  // limit speed
+            .pid(0.4, 0.0, 0.0)
+            .outputRange(-0.15, 0.15);
 
         hopperMotor.configure(
             config,
@@ -71,11 +67,8 @@ public class Hopper extends SubsystemBase {
         hopperEncoder = hopperMotor.getEncoder();
         hopperController = hopperMotor.getClosedLoopController();
 
-        hopperEncoder.setPosition(0);
-
-        homeSwitch = new DigitalInput(
-            Constants.FuelSystemConstants.HOPPER_HOME_SWITCH_DIO
-        );
+        // Assume starting at "home"
+        hopperEncoder.setPosition(0.0);
     }
 
     /* =============================
@@ -103,11 +96,23 @@ public class Hopper extends SubsystemBase {
     }
 
     /* =============================
-       Home Switch
+       Encoder Utilities
        ============================= */
 
-    public boolean isHomePressed() {
-        return !homeSwitch.get(); // invert if wired NC
+    public double getPosition() {
+        return hopperEncoder.getPosition();
+    }
+
+    /**
+     * Call this when the hopper is physically at the home position.
+     * (Driver button or robot init)
+     */
+    public void zeroEncoder() {
+        hopperEncoder.setPosition(0.0);
+    }
+
+    public boolean atTarget() {
+        return Math.abs(getPosition() - currentTarget) < positionTolerance;
     }
 
     /* =============================
@@ -119,11 +124,6 @@ public class Hopper extends SubsystemBase {
 
         double position = hopperEncoder.getPosition();
 
-        // Auto re-zero when homed
-        if (isHomePressed()) {
-            hopperEncoder.setPosition(0);
-        }
-
         switch (currentState) {
 
             case IDLE:
@@ -134,21 +134,25 @@ public class Hopper extends SubsystemBase {
                 hopperController.setReference(
                     openPosition,
                     ControlType.kPosition,
-                    ClosedLoopSlot.kSlot0);
+                    ClosedLoopSlot.kSlot0
+                );
+                currentTarget = openPosition;
                 break;
 
             case RETRACTING:
                 hopperController.setReference(
-                    0,
+                    0.0,
                     ControlType.kPosition,
-                    ClosedLoopSlot.kSlot0);
+                    ClosedLoopSlot.kSlot0
+                );
+                currentTarget = 0.0;
                 break;
 
             case SHUFFLE:
 
-                // If at target, switch direction
                 if (Math.abs(position - currentTarget) < positionTolerance) {
                     shuffleGoingOut = !shuffleGoingOut;
+
                     currentTarget = shuffleGoingOut
                         ? openPosition
                         : shufflePosition;
@@ -157,14 +161,18 @@ public class Hopper extends SubsystemBase {
                 hopperController.setReference(
                     currentTarget,
                     ControlType.kPosition,
-                    ClosedLoopSlot.kSlot0);
+                    ClosedLoopSlot.kSlot0
+                );
 
                 break;
         }
 
+        /* =============================
+           Dashboard Logging
+           ============================= */
+
         Dashboard.logString("Hopper State", () -> currentState.toString());
         Dashboard.logNumber("Hopper Position", hopperEncoder::getPosition);
         Dashboard.logNumber("Hopper Target", () -> currentTarget);
-        Dashboard.logBoolean("Home Switch", this::isHomePressed);
     }
 }

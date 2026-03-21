@@ -15,7 +15,7 @@ import frc.robot.subsystems.SuperSystem;
 public class CollectCommand extends StartEndCommand {
   public CollectCommand(SuperSystem superSystem) {
     super(
-        () -> superSystem.setWantedState(SuperSystem.WantedState.COLLECT),
+        () -> superSystem.setWantedState(SuperSystem.WantedState.FRONT_COLLECT),
         () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
         superSystem);
   }
