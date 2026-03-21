@@ -35,7 +35,7 @@ import frc.robot.commands.SwerveController;
 //import frc.robot.commands.AutoFuelLaunch;
 
 import frc.robot.subsystems.Swerve;
-import frc.robot.subsystems.Climber;
+// import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.RearIntake;
 import frc.robot.subsystems.FrontIntake;
 import frc.robot.subsystems.Launcher;
@@ -44,6 +44,7 @@ import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.SuperSystem;
 import frc.robot.utilities.Constants;
 import frc.robot.utilities.Dashboard;
+import frc.robot.subsystems.RearIntakeLift;
 //import frc.robot.utilities.DriverHUD;
 
 
@@ -61,15 +62,16 @@ public class RobotContainer {
 
   // Subsystem instances created once and shared across commands
   
-  private final Climber climber = new Climber();
+  // private final Climber climber = new Climber();
   private final RearIntake rearIntake = new RearIntake();
   private final Agitator agitator = new Agitator();
   private final FrontIntake intake = new FrontIntake();
   private final Launcher launch = new Launcher();
   private final Hopper hopper = new Hopper();
+  private final RearIntakeLift rearIntakeLift = new RearIntakeLift();
 
   // SuperSystem coordinates states across these shared subsystems
-  private final SuperSystem superSystem = new SuperSystem(launch, rearIntake, intake, hopper, agitator);
+  private final SuperSystem superSystem = new SuperSystem(launch, rearIntake, intake, hopper, agitator, rearIntakeLift);
 
   private final LaunchFarCommand launchFarCommand = new LaunchFarCommand(superSystem);
   private final LaunchCloseCommand launchCloseCommand = new LaunchCloseCommand(superSystem);
