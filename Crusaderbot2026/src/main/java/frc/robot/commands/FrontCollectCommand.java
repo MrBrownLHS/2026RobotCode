@@ -12,8 +12,8 @@ import frc.robot.subsystems.SuperSystem;
  * the command ends it returns the SuperSystem to IDLE. This makes it suitable for
  * binding with whileTrue(...) so releasing the button stops collection immediately.
  */
-public class CollectCommand extends StartEndCommand {
-  public CollectCommand(SuperSystem superSystem) {
+public class FrontCollectCommand extends StartEndCommand {
+  public FrontCollectCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setWantedState(SuperSystem.WantedState.FRONT_COLLECT),
         () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),

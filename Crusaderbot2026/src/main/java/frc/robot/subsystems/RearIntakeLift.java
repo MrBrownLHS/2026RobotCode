@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
@@ -21,17 +17,19 @@ public class RearIntakeLift extends SubsystemBase {
   public enum State {
     STORED,
     LIFTED,
-    EXTENDED
+    EXTENDED,
+    MANUAL,
+    IDLE
   }
 
   private State currentState = State.STORED;
 
   private final SparkMax m_RearIntakeLift;
-  private final RelativeEncoder rearIntakeLiftEncoder;
+  private final RelativeEncoder encoder;
 
-  // --- Tunable control values ---
-  private double kP = 0.02; // Tune this
-  private double tolerance = 5.0; // Acceptable error
+  // --- Tunable values ---
+
+  private final double tolerance = 0.2;
 
   public RearIntakeLift() {
 
@@ -51,17 +49,18 @@ public class RearIntakeLift extends SubsystemBase {
         SparkBase.ResetMode.kResetSafeParameters,
         SparkBase.PersistMode.kPersistParameters);
 
-    rearIntakeLiftEncoder = m_RearIntakeLift.getEncoder();
+    encoder = m_RearIntakeLift.getEncoder();
 
-    // Zero at startup
-    rearIntakeLiftEncoder.setPosition(0.0);
+    // Assume starting at stored
+    encoder.setPosition(0.0);
 
     m_RearIntakeLift.set(0.0);
   }
 
-  // -----------------------------
-  // STATE CONTROL
-  // -----------------------------
+  /* =============================
+     STATE CONTROL
+     ============================= */
+
   public void setState(State newState) {
     currentState = newState;
   }
@@ -70,9 +69,10 @@ public class RearIntakeLift extends SubsystemBase {
     return currentState;
   }
 
-  // -----------------------------
-  // POSITION LOGIC
-  // -----------------------------
+  /* =============================
+     POSITION LOGIC
+     ============================= */
+
   private double getTargetPosition() {
     switch (currentState) {
       case STORED:
@@ -90,50 +90,79 @@ public class RearIntakeLift extends SubsystemBase {
   }
 
   public double getPosition() {
-    return rearIntakeLiftEncoder.getPosition();
+    return encoder.getPosition();
   }
 
   public void zeroEncoder() {
-    rearIntakeLiftEncoder.setPosition(0.0);
+    encoder.setPosition(0.0);
   }
 
   public boolean atSetpoint() {
     return Math.abs(getTargetPosition() - getPosition()) < tolerance;
   }
 
+  public boolean isExtended() {
+    return Math.abs(getPosition() - Constants.FuelSystemConstants.REAR_INTAKE_LIFT_EXTEND_POSITION) < tolerance;
+  }
+
   public void stop() {
     m_RearIntakeLift.set(0.0);
   }
 
-  // -----------------------------
-  // PERIODIC CONTROL LOOP
-  // -----------------------------
+  private double manualOutput = 0.0;
+
+  public void manualControl(double speed) {
+    currentState = State.MANUAL;
+    manualOutput = speed;
+  }
+
+  /* =============================
+     PERIODIC CONTROL
+     ============================= */
+
   @Override
   public void periodic() {
 
-    double target = getTargetPosition();
-    double current = getPosition();
+     double output = 0.0;
 
-    double error = target - current;
+  switch (currentState) {
 
-    // Simple P control
-    double output = kP * error;
-
-    // Clamp output to safe speeds
-    output = Math.max(-0.15, Math.min(0.15, output));
-
-    // Stop if within tolerance
-    if (Math.abs(error) < tolerance) {
+    case IDLE:
       output = 0.0;
-    }
+      break;
 
-    m_RearIntakeLift.set(output);
+    case MANUAL:
+      output = manualOutput;
+      break;
 
-    // -----------------------------
-    // DASHBOARD OUTPUT (for tuning)
-    // -----------------------------
-    Dashboard.logNumber("RearIntakeLift Position", () -> getPosition());
-    Dashboard.logNumber("RearIntakeLift Target", () -> getTargetPosition());
-    Dashboard.logString("RearIntakeLift State", () ->currentState.toString());
+    case STORED:
+    case LIFTED:
+    case EXTENDED:
+
+      double target = getTargetPosition();
+      double current = getPosition();
+
+      if (!atSetpoint()) {
+        if (current < target) {
+          output = 0.15;
+        } else {
+          output = -0.15;
+        }
+      } else {
+        output = 0.0;
+      }
+
+      break;
+  }
+
+  m_RearIntakeLift.set(output);
+
+    /* =============================
+       DASHBOARD
+       ============================= */
+    Dashboard.logNumber("RearIntakeLift Position", this::getPosition);
+    Dashboard.logNumber("RearIntakeLift Target", this::getTargetPosition);
+    Dashboard.logString("RearIntakeLift State", () -> currentState.toString());
+    Dashboard.logBoolean("RearIntakeLift At Target", this::atSetpoint);
   }
 }

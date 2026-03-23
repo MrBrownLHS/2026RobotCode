@@ -53,7 +53,7 @@ public class Constants {
         public static final double REAR_INTAKE_EXTEND_SPEED = 0.25;
         public static final double REAR_INTAKE_LIFT_STORED_POSITION = 0.0; //Tune during testing
         public static final double REAR_INTAKE_LIFT_LIFTED_POSITION = -1.5; //Tune during testing
-        public static final double REAR_INTAKE_LIFT_EXTEND_POSITION = 2.1; //Tune during testing
+        public static final double REAR_INTAKE_LIFT_EXTEND_POSITION = 2.0; //Tune during testing
     //Agitator
         public static final int AGITATOR_MOTOR_ID = 16;
         public static final double AGITATOR_AGITATE_SPEED = -0.15; //Tune
@@ -66,7 +66,7 @@ public class Constants {
         public static final double HOPPER_RETRACT_SPEED = -0.15;
         public static final double HOPPER_RETRACT_POSITION = 0.0; //Tune during testing
         public static final double HOPPER_SHUFFLE_SPEED = 0.15; //Tune during testing
-        public static final double HOPPER_SHUFFLE_POSITION = 6.0; //
+        public static final double HOPPER_SHUFFLE_POSITION = 5.0; //
     
         
    }

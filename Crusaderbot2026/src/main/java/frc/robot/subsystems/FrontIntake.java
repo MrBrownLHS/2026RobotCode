@@ -78,7 +78,7 @@ public class FrontIntake extends SubsystemBase {
         break;
       }
 
-    Dashboard.logString("Intake State", () -> currentState.toString());
+    Dashboard.logString("Front Intake State", () -> currentState.toString());
     
   }
 }

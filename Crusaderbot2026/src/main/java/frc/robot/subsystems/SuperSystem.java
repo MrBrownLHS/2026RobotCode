@@ -18,6 +18,7 @@ public class SuperSystem extends SubsystemBase {
     YEET_PASS,
     RETRACT_HOPPER,
     EXTEND_HOPPER,
+    REAR_COLLECT,
     REVERSE
   }
 
@@ -61,7 +62,7 @@ public class SuperSystem extends SubsystemBase {
           intake.setState(FrontIntake.State.IDLE);
           hopper.setState(Hopper.State.IDLE);
           agitator.setState(Agitator.State.IDLE);
-          rearIntakeLift.setState(RearIntakeLift.State.STORED);
+          rearIntakeLift.setState(RearIntakeLift.State.IDLE);
 
           break;
 
@@ -112,6 +113,7 @@ public class SuperSystem extends SubsystemBase {
               hopper.setState(Hopper.State.RETRACTING);
             }
             break;
+            
         case EXTEND_HOPPER:
             hopper.setState(Hopper.State.EXTENDING);
 
@@ -119,10 +121,23 @@ public class SuperSystem extends SubsystemBase {
              rearIntakeLift.setState(RearIntakeLift.State.EXTENDED);
             }
             break;
+        
+        case REAR_COLLECT:
+
+            hopper.setState(Hopper.State.EXTENDING);
+            rearIntakeLift.setState(RearIntakeLift.State.EXTENDED);
+
+            // Check ACTUAL POSITION, not state
+            if (hopper.isExtended() && rearIntakeLift.isExtended()) {
+                rearIntake.setState(RearIntake.State.INTAKE_COLLECT);
+            }
+
+            break;
 
         case REVERSE:
           intake.setState(FrontIntake.State.INTAKE_REVERSE);
           agitator.setState(Agitator.State.REVERSE);
+          rearIntake.setState(RearIntake.State.INTAKE_REVERSE);
           break;
       }
       Dashboard.logString("SuperSystem Wanted State", () -> wantedState.toString());

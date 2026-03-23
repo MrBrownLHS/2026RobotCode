@@ -27,8 +27,9 @@ import frc.robot.commands.LaunchFarCommand;
 import frc.robot.commands.YeetPassCommand;
 import frc.robot.commands.ReverseCollectorCommand;
 import frc.robot.commands.StopAllCommand;
-import frc.robot.commands.CollectCommand;
+import frc.robot.commands.FrontCollectCommand;
 import frc.robot.commands.AutoRotateLaunch;
+import frc.robot.commands.RearCollectCommand;
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
 
@@ -76,9 +77,10 @@ public class RobotContainer {
   private final LaunchFarCommand launchFarCommand = new LaunchFarCommand(superSystem);
   private final LaunchCloseCommand launchCloseCommand = new LaunchCloseCommand(superSystem);
   private final StopAllCommand stopAllCommand = new StopAllCommand(superSystem);
-  private final CollectCommand collectCommand = new CollectCommand(superSystem);
+  private final FrontCollectCommand frontCollectCommand = new FrontCollectCommand(superSystem);
   private final ReverseCollectorCommand reverseCollectorCommand = new ReverseCollectorCommand(superSystem);
   private final YeetPassCommand yeetPassCommand = new YeetPassCommand(superSystem);
+  private final RearCollectCommand rearCollectCommand = new RearCollectCommand(superSystem);
 
    
 
@@ -186,26 +188,44 @@ public class RobotContainer {
           Hopper.State.SHUFFLE), hopper)
       );
     
+    CopilotCommandController.b().whileTrue(reverseCollectorCommand);
+    
     CopilotCommandController.x().onTrue(stopAllCommand);
 
     CopilotCommandController.y().whileTrue(yeetPassCommand);
 
-    CopilotCommandController.rightBumper().whileTrue(collectCommand);
+    CopilotCommandController.rightBumper().whileTrue(rearCollectCommand);
+     
 
-    CopilotCommandController.leftBumper().whileTrue(reverseCollectorCommand);
+    CopilotCommandController.leftBumper().whileTrue(frontCollectCommand);
 
 
-    CopilotCommandController.pov(90).whileTrue(
+    CopilotCommandController.pov(270).whileTrue(
       new RunCommand (
         () -> superSystem.setWantedState(
           SuperSystem.WantedState.EXTEND_HOPPER), superSystem)
     );
 
-    CopilotCommandController.pov(270).whileTrue(
+    CopilotCommandController.pov(90).whileTrue(
       new RunCommand (
         () -> superSystem.setWantedState(
           SuperSystem.WantedState.RETRACT_HOPPER), superSystem)
     );
+
+    CopilotCommandController.pov(0).whileTrue(
+      new RunCommand (
+        () -> rearIntakeLift.setState(
+          RearIntakeLift.State.LIFTED), rearIntakeLift
+        )
+    );
+
+    CopilotCommandController.pov(180).whileTrue(
+      new RunCommand (
+        () -> rearIntakeLift.setState(
+          RearIntakeLift.State.EXTENDED), rearIntakeLift
+        )
+    );
+    
 
       
     // // Climber Controls: POV for up/retract and continuous reach commands

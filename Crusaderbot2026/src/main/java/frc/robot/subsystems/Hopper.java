@@ -26,7 +26,7 @@ public class Hopper extends SubsystemBase {
 
     private State currentState = State.IDLE;
 
-    private final SparkMax hopperMotor;
+    private final SparkMax m_Hopper;
     private final RelativeEncoder hopperEncoder;
     private final SparkClosedLoopController hopperController;
 
@@ -34,7 +34,7 @@ public class Hopper extends SubsystemBase {
     private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION;
     private final double shufflePosition = Constants.FuelSystemConstants.HOPPER_SHUFFLE_POSITION;
 
-    private final double positionTolerance = 0.15;
+    private final double positionTolerance = 0.5;
 
     // Shuffle control
     private boolean shuffleGoingOut = true;
@@ -42,13 +42,14 @@ public class Hopper extends SubsystemBase {
 
     public Hopper() {
 
-        hopperMotor = new SparkMax(
+        m_Hopper = new SparkMax(
             Constants.FuelSystemConstants.HOPPER_MOTOR_ID,
             MotorType.kBrushless
         );
 
         SparkMaxConfig config = new SparkMaxConfig();
-
+        
+        config.inverted(false);
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
         config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
@@ -58,14 +59,14 @@ public class Hopper extends SubsystemBase {
             .pid(0.4, 0.0, 0.0)
             .outputRange(-0.15, 0.15);
 
-        hopperMotor.configure(
+        m_Hopper.configure(
             config,
             SparkBase.ResetMode.kResetSafeParameters,
             SparkBase.PersistMode.kPersistParameters
         );
 
-        hopperEncoder = hopperMotor.getEncoder();
-        hopperController = hopperMotor.getClosedLoopController();
+        hopperEncoder = m_Hopper.getEncoder();
+        hopperController = m_Hopper.getClosedLoopController();
 
         // Assume starting at "home"
         hopperEncoder.setPosition(0.0);
@@ -92,7 +93,7 @@ public class Hopper extends SubsystemBase {
 
     public void stop() {
         currentState = State.IDLE;
-        hopperMotor.set(0);
+        m_Hopper.set(0);
     }
 
     /* =============================
@@ -115,6 +116,10 @@ public class Hopper extends SubsystemBase {
         return Math.abs(getPosition() - currentTarget) < positionTolerance;
     }
 
+    public boolean isExtended() {
+    return Math.abs(getPosition() - Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION) < 0.5;
+    }
+
     /* =============================
        Periodic
        ============================= */
@@ -127,7 +132,7 @@ public class Hopper extends SubsystemBase {
         switch (currentState) {
 
             case IDLE:
-                hopperMotor.set(0);
+                m_Hopper.set(0);
                 break;
 
             case EXTENDING:

@@ -38,6 +38,7 @@ public class RearIntake extends SubsystemBase {
     m_RearIntake = new SparkMax(Constants.FuelSystemConstants.REARINTAKE_MOTOR_ID, MotorType.kBrushless);
 
     SparkMaxConfig config = new SparkMaxConfig();
+    config.inverted(true);
     config.idleMode(IdleMode.kCoast);
     config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
     config.secondaryCurrentLimit(Constants.MotorConstants.MAX_CURRENT_LIMIT_NEO);
