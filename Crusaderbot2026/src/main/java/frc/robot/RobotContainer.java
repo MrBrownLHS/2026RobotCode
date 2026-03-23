@@ -194,7 +194,11 @@ public class RobotContainer {
 
     CopilotCommandController.y().whileTrue(yeetPassCommand);
 
-    CopilotCommandController.rightBumper().whileTrue(rearCollectCommand);
+    CopilotCommandController.rightBumper().whileTrue(
+      new RearCollectCommand(superSystem))
+      .onFalse(new InstantCommand(() -> 
+          superSystem.setWantedState(SuperSystem.WantedState.IDLE)
+      ));
      
 
     CopilotCommandController.leftBumper().whileTrue(frontCollectCommand);

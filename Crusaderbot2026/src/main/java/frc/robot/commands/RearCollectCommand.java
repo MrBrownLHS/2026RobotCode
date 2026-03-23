@@ -6,13 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import frc.robot.subsystems.SuperSystem;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 
 /**
  * Hold-to-run command: while active it sets the SuperSystem to COLLECT, and when
  * the command ends it returns the SuperSystem to IDLE. This makes it suitable for
  * binding with whileTrue(...) so releasing the button stops collection immediately.
  */
-public class RearCollectCommand extends StartEndCommand {
+public class RearCollectCommand extends RunCommand {
   public RearCollectCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setWantedState(SuperSystem.WantedState.REAR_COLLECT),
