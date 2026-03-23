@@ -19,6 +19,7 @@ public class RearIntakeLift extends SubsystemBase {
     LIFTED,
     EXTENDED,
     MANUAL,
+    SHUFFLE,
     IDLE
   }
 
@@ -26,6 +27,10 @@ public class RearIntakeLift extends SubsystemBase {
 
   private final SparkMax m_RearIntakeLift;
   private final RelativeEncoder encoder;
+
+  private boolean shuffleInitialized = false;
+  private boolean shuffleGoingUp = true;
+  private double shuffleTarget = 0.0;
 
   // --- Tunable values ---
 
@@ -62,7 +67,13 @@ public class RearIntakeLift extends SubsystemBase {
      ============================= */
 
   public void setState(State newState) {
+    if (newState != currentState) {
     currentState = newState;
+
+    if (newState == State.SHUFFLE) {
+      shuffleInitialized = false; // force re-init
+      }
+    }
   }
 
   public State getState() {
@@ -120,10 +131,10 @@ public class RearIntakeLift extends SubsystemBase {
      PERIODIC CONTROL
      ============================= */
 
-  @Override
+@Override
   public void periodic() {
 
-     double output = 0.0;
+  double output = 0.0;
 
   switch (currentState) {
 
@@ -137,7 +148,7 @@ public class RearIntakeLift extends SubsystemBase {
 
     case STORED:
     case LIFTED:
-    case EXTENDED:
+    case EXTENDED: {
 
       double target = getTargetPosition();
       double current = getPosition();
@@ -153,16 +164,57 @@ public class RearIntakeLift extends SubsystemBase {
       }
 
       break;
+    }
+
+    case SHUFFLE: {
+
+      double current = getPosition();
+      double stored = Constants.FuelSystemConstants.REAR_INTAKE_LIFT_STORED_POSITION;
+      double lifted = Constants.FuelSystemConstants.REAR_INTAKE_LIFT_LIFTED_POSITION;
+
+      // Step 1: Force return to STORED before starting shuffle
+      if (!shuffleInitialized) {
+
+        if (Math.abs(current - stored) > tolerance) {
+          // Move to stored first
+          if (current < stored) {
+            output = 0.15;
+          } else {
+            output = -0.15;
+          }
+          break;
+        } else {
+          // Now safe to start shuffle
+          shuffleInitialized = true;
+          shuffleGoingUp = true;
+          shuffleTarget = lifted;
+        }
+      }
+
+      // Step 2: Normal shuffle behavior
+      if (Math.abs(current - shuffleTarget) < tolerance) {
+        shuffleGoingUp = !shuffleGoingUp;
+        shuffleTarget = shuffleGoingUp ? lifted : stored;
+      }
+
+      if (current < shuffleTarget) {
+        output = 0.15;
+      } else {
+        output = -0.15;
+      }
+
+      break;
+    }
   }
 
   m_RearIntakeLift.set(output);
 
-    /* =============================
-       DASHBOARD
-       ============================= */
-    Dashboard.logNumber("RearIntakeLift Position", this::getPosition);
-    Dashboard.logNumber("RearIntakeLift Target", this::getTargetPosition);
-    Dashboard.logString("RearIntakeLift State", () -> currentState.toString());
-    Dashboard.logBoolean("RearIntakeLift At Target", this::atSetpoint);
+  /* =============================
+     DASHBOARD
+     ============================= */
+  Dashboard.logNumber("RearIntakeLift Position", this::getPosition);
+  Dashboard.logNumber("RearIntakeLift Target", this::getTargetPosition);
+  Dashboard.logString("RearIntakeLift State", () -> currentState.toString());
+  Dashboard.logBoolean("RearIntakeLift At Target", this::atSetpoint);
   }
 }

@@ -30,6 +30,7 @@ import frc.robot.commands.StopAllCommand;
 import frc.robot.commands.FrontCollectCommand;
 import frc.robot.commands.AutoRotateLaunch;
 import frc.robot.commands.RearCollectCommand;
+import frc.robot.commands.ShuffleHopperCommand;
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
 
@@ -81,6 +82,7 @@ public class RobotContainer {
   private final ReverseCollectorCommand reverseCollectorCommand = new ReverseCollectorCommand(superSystem);
   private final YeetPassCommand yeetPassCommand = new YeetPassCommand(superSystem);
   private final RearCollectCommand rearCollectCommand = new RearCollectCommand(superSystem);
+  private final ShuffleHopperCommand shuffleHopperCommand = new ShuffleHopperCommand(superSystem);
 
    
 
@@ -183,10 +185,10 @@ public class RobotContainer {
     CopilotCommandController.leftTrigger(0.5).whileTrue(launchCloseCommand);
         
     CopilotCommandController.a().whileTrue(
-      new RunCommand (
-        () -> hopper.setState(
-          Hopper.State.SHUFFLE), hopper)
-      );
+      new ShuffleHopperCommand(superSystem))
+      .onFalse(new InstantCommand(()->
+      superSystem.setWantedState(SuperSystem.WantedState.IDLE)
+      ));
     
     CopilotCommandController.b().whileTrue(reverseCollectorCommand);
     

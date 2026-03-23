@@ -13,10 +13,10 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  * the command ends it returns the SuperSystem to IDLE. This makes it suitable for
  * binding with whileTrue(...) so releasing the button stops collection immediately.
  */
-public class RearCollectCommand extends RunCommand {
-  public RearCollectCommand(SuperSystem superSystem) {
+public class ShuffleHopperCommand extends RunCommand {
+  public ShuffleHopperCommand(SuperSystem superSystem) {
     super(
-        () -> superSystem.setWantedState(SuperSystem.WantedState.REAR_COLLECT),
+        () -> superSystem.setWantedState(SuperSystem.WantedState.SHUFFLE_HOPPER),
         superSystem);
   }
 }

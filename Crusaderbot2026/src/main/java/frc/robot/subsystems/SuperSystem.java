@@ -19,6 +19,7 @@ public class SuperSystem extends SubsystemBase {
     RETRACT_HOPPER,
     EXTEND_HOPPER,
     REAR_COLLECT,
+    SHUFFLE_HOPPER,
     REVERSE
   }
 
@@ -132,6 +133,18 @@ public class SuperSystem extends SubsystemBase {
                 rearIntake.setState(RearIntake.State.INTAKE_COLLECT);
             }
 
+            break;
+
+        case SHUFFLE_HOPPER:
+            hopper.setState(Hopper.State.EXTENDING);
+            rearIntakeLift.setState(RearIntakeLift.State.STORED);
+            
+            if (hopper.isExtended() && rearIntakeLift.isExtended()) {
+              hopper.setState(Hopper.State.SHUFFLE);
+              rearIntakeLift.setState(RearIntakeLift.State.SHUFFLE);
+              rearIntake.setState(RearIntake.State.INTAKE_REVERSE);
+            }
+            
             break;
 
         case REVERSE:
