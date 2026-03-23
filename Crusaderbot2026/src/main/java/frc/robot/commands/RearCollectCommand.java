@@ -16,7 +16,6 @@ public class RearCollectCommand extends StartEndCommand {
   public RearCollectCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setWantedState(SuperSystem.WantedState.REAR_COLLECT),
-        () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
         superSystem);
   }
 }
