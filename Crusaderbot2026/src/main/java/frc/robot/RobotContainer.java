@@ -186,9 +186,11 @@ public class RobotContainer {
         
     CopilotCommandController.a().whileTrue(
       new ShuffleHopperCommand(superSystem))
-      .onFalse(new InstantCommand(()->
-      superSystem.setWantedState(SuperSystem.WantedState.IDLE)
-      ));
+      .onFalse(new InstantCommand(() -> {
+        hopper.setState(Hopper.State.IDLE);
+        rearIntake.setState(RearIntake.State.IDLE);
+        rearIntakeLift.setState(RearIntakeLift.State.IDLE);
+      }));
     
     CopilotCommandController.b().whileTrue(reverseCollectorCommand);
     
@@ -197,10 +199,10 @@ public class RobotContainer {
     CopilotCommandController.y().whileTrue(yeetPassCommand);
 
     CopilotCommandController.rightBumper().whileTrue(
-      new RearCollectCommand(superSystem))
-      .onFalse(new InstantCommand(() -> 
-          superSystem.setWantedState(SuperSystem.WantedState.IDLE)
-      ));
+      new RunCommand (
+        () -> rearIntake.setState (
+          RearIntake.State.INTAKE_COLLECT), rearIntake)
+    );
      
 
     CopilotCommandController.leftBumper().whileTrue(frontCollectCommand);
