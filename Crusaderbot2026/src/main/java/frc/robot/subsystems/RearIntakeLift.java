@@ -34,7 +34,7 @@ public class RearIntakeLift extends SubsystemBase {
 
   // --- Tunable values ---
 
-  private final double tolerance = 0.2;
+  private final double tolerance = 0.25;
 
   public RearIntakeLift() {
 
