@@ -10,7 +10,10 @@ import frc.robot.subsystems.SuperSystem;
 public class StopAllCommand extends InstantCommand {
 
   public StopAllCommand(SuperSystem superSystem) {
-    super(() -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
+    super(() -> {
+      superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE);
+      superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);
+    },
           superSystem);
   }
 }

@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 
 import frc.robot.subsystems.SuperSystem;
-import edu.wpi.first.wpilibj2.command.RunCommand;
+
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
 /**
@@ -14,11 +14,12 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
  * the command ends it returns the SuperSystem to IDLE. This makes it suitable for
  * binding with whileTrue(...) so releasing the button stops collection immediately.
  */
-public class ShuffleHopperCommand extends RunCommand {
+public class ShuffleHopperCommand extends StartEndCommand {
   
   public ShuffleHopperCommand(SuperSystem superSystem) {
     super(
-        () -> superSystem.setWantedState(SuperSystem.WantedState.SHUFFLE_HOPPER),
+        () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.SHUFFLE_HOPPER),
+        () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE),
         superSystem);
   }
 }

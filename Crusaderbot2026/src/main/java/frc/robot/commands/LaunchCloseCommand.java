@@ -15,9 +15,9 @@ public class LaunchCloseCommand extends StartEndCommand {
   public LaunchCloseCommand(SuperSystem superSystem) {
     super(
         // onStart: set desired state to LAUNCH_CLOSE
-        () -> superSystem.setWantedState(SuperSystem.WantedState.LAUNCH_CLOSE),
+        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.LAUNCH_CLOSE),
         // onEnd: return to IDLE when the command ends (button released)
-        () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
+        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE),
         superSystem);
   }
 }

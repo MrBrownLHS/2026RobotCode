@@ -13,9 +13,14 @@ public class ReverseCollectorCommand extends StartEndCommand {
   public ReverseCollectorCommand(SuperSystem superSystem) {
     super(
         // onStart: set desired state to REVERSE
-        () -> superSystem.setWantedState(SuperSystem.WantedState.REVERSE),
+        () -> {
+          superSystem.setFrontWantedState(SuperSystem.FrontWantedState.REVERSE);
+          superSystem.setRearWantedState(SuperSystem.RearWantedState.REVERSE);
+        },
         // onEnd: return to IDLE when the command ends (button released)
-        () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
+        () -> {
+          superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE);
+          superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);},
         superSystem);
   }
 }

@@ -5,8 +5,10 @@
 package frc.robot.commands;
 
 
-import frc.robot.subsystems.RearIntakeLift;
+
+import frc.robot.subsystems.SuperSystem;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
 
 
 /**
@@ -14,10 +16,11 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
  * the command ends it returns the SuperSystem to IDLE. This makes it suitable for
  * binding with whileTrue(...) so releasing the button stops collection immediately.
  */
-public class ExtendRearIntakeCommand extends RunCommand {
-  public ExtendRearIntakeCommand(RearIntakeLift rearIntake) {
+public class ExtendRearIntakeCommand extends StartEndCommand {
+  public ExtendRearIntakeCommand(SuperSystem superSystem) {
     super(
-        () -> rearIntake.setState(RearIntakeLift.State.EXTENDED),
-        rearIntake);
+        () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.EXTENDED),
+        () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.IDLE),
+        superSystem);
   }
 }

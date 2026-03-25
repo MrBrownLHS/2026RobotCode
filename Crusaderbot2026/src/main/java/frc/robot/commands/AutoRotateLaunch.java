@@ -41,19 +41,22 @@ public class AutoRotateLaunch extends SequentialCommandGroup {
             new WaitCommand(0.2),
 
             new RunCommand(
-                () -> hopper.setState(Hopper.State.EXTENDING),
+                () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.EXTEND_HOPPER),
                 hopper
             ).withTimeout(1.5),
 
             // Activate the launcher system
             new RunCommand(
-                () -> superSystem.setWantedState(SuperSystem.WantedState.LAUNCH_CLOSE),
+                () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.LAUNCH_CLOSE),
                 superSystem
             ).withTimeout(8.0),
 
             // Return to idle
             new RunCommand(
-                () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
+                () -> {
+                    superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE);
+                    superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);
+                },
                 superSystem
             ).withTimeout(0.05)
         );

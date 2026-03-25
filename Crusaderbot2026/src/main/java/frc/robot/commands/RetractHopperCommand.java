@@ -17,7 +17,7 @@ public class RetractHopperCommand extends RunCommand {
   
   public RetractHopperCommand(SuperSystem superSystem) {
     super(
-        () -> superSystem.setWantedState(SuperSystem.WantedState.RETRACT_HOPPER),
+        () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.RETRACT_HOPPER),
         superSystem);
   }
 }

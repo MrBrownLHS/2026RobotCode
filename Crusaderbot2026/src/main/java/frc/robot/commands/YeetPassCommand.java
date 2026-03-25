@@ -12,9 +12,9 @@ public class YeetPassCommand extends StartEndCommand {
 
   public YeetPassCommand(SuperSystem superSystem) {
     super(
-        () -> superSystem.setWantedState(SuperSystem.WantedState.YEET_PASS),
+        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.YEET_PASS),
         // onEnd: return to IDLE when the command ends (button released)
-        () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
+        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE),
         superSystem);
   }
 }
