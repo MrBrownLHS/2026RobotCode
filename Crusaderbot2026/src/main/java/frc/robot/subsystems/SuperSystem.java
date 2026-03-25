@@ -108,20 +108,24 @@ public class SuperSystem extends SubsystemBase {
             break;
 
         case RETRACT_HOPPER:
-            rearIntakeLift.setState(RearIntakeLift.State.STORED);
+          rearIntakeLift.setState(RearIntakeLift.State.STORED);
 
-            if (rearIntakeLift.atSetpoint()) {
-              hopper.setState(Hopper.State.RETRACTING);
-            }
-            break;
-            
-        case EXTEND_HOPPER:
-            hopper.setState(Hopper.State.EXTENDING);
+          if (rearIntakeLift.isStored()) {
+            hopper.setState(Hopper.State.RETRACTING);
+          } else {
+            hopper.setState(Hopper.State.IDLE);
+          }
+          break;
 
-            if (hopper.getState() == Hopper.State.EXTENDING) {
-             rearIntakeLift.setState(RearIntakeLift.State.EXTENDED);
-            }
-            break;
+case EXTEND_HOPPER:
+          hopper.setState(Hopper.State.EXTENDING);
+
+          if (hopper.isExtended()) {
+            rearIntakeLift.setState(RearIntakeLift.State.EXTENDED);
+          } else {
+            rearIntakeLift.setState(RearIntakeLift.State.IDLE);
+          }
+          break;
         
         case REAR_COLLECT:
 
