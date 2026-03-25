@@ -191,7 +191,6 @@ public class SuperSystem extends SubsystemBase {
 
       case IDLE:
         hopper.setState(Hopper.State.IDLE);
-        rearIntake.setState(RearIntake.State.IDLE);
         break;
 
       case EXTEND_HOPPER:
