@@ -5,20 +5,20 @@
 package frc.robot.commands;
 
 
-import frc.robot.subsystems.SuperSystem;
+import frc.robot.subsystems.RearIntakeLift;
+
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import frc.robot.subsystems.RearIntake;
 
 /**
  * Hold-to-run command: while active it sets the SuperSystem to COLLECT, and when
  * the command ends it returns the SuperSystem to IDLE. This makes it suitable for
  * binding with whileTrue(...) so releasing the button stops collection immediately.
  */
-public class RearCollectCommand extends StartEndCommand {
-  public RearCollectCommand(RearIntake rearIntake) {
+public class ExtendRearIntakeCommand extends StartEndCommand {
+  public ExtendRearIntakeCommand(RearIntakeLift rearIntake) {
     super(
-        () -> rearIntake.setState(RearIntake.State.INTAKE_COLLECT),
-        () -> rearIntake.setState(RearIntake.State.IDLE),
+        () -> rearIntake.setState(RearIntakeLift.State.EXTENDED),
+        () -> rearIntake.setState(RearIntakeLift.State.IDLE),
         rearIntake);
   }
 }

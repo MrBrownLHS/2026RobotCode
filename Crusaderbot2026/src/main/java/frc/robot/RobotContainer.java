@@ -24,13 +24,22 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import frc.robot.commands.LaunchCloseCommand;
 import frc.robot.commands.LaunchFarCommand;
+import frc.robot.commands.LiftRearIntakeCommand;
 import frc.robot.commands.YeetPassCommand;
 import frc.robot.commands.ReverseCollectorCommand;
 import frc.robot.commands.StopAllCommand;
 import frc.robot.commands.FrontCollectCommand;
 import frc.robot.commands.AutoRotateLaunch;
+import frc.robot.commands.ExtendHopperCommand;
+import frc.robot.commands.ExtendRearIntakeCommand;
 import frc.robot.commands.RearCollectCommand;
+import frc.robot.commands.RetractHopperCommand;
 import frc.robot.commands.ShuffleHopperCommand;
+import frc.robot.commands.LiftRearIntakeCommand;
+import frc.robot.commands.ExtendRearIntakeCommand;
+import frc.robot.commands.ExtendHopperCommand;
+import frc.robot.commands.RetractHopperCommand;
+import frc.robot.commands.RearCollectCommand;
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
 
@@ -81,8 +90,13 @@ public class RobotContainer {
   private final FrontCollectCommand frontCollectCommand = new FrontCollectCommand(superSystem);
   private final ReverseCollectorCommand reverseCollectorCommand = new ReverseCollectorCommand(superSystem);
   private final YeetPassCommand yeetPassCommand = new YeetPassCommand(superSystem);
-  private final RearCollectCommand rearCollectCommand = new RearCollectCommand(superSystem);
+  private final RearCollectCommand rearCollectCommand = new RearCollectCommand(rearIntake);
   private final ShuffleHopperCommand shuffleHopperCommand = new ShuffleHopperCommand(superSystem);
+  private final ExtendHopperCommand ExtendHopperCommand = new ExtendHopperCommand(superSystem, hopper, rearIntakeLift);
+  private final RetractHopperCommand RetractHopperCommand = new RetractHopperCommand(superSystem, hopper, rearIntakeLift);
+  private final LiftRearIntakeCommand LiftRearIntakeCommand = new LiftRearIntakeCommand(rearIntakeLift);
+  private final ExtendRearIntakeCommand ExtendRearIntakeCommand = new ExtendRearIntakeCommand(rearIntakeLift);
+  
 
    
 
@@ -198,41 +212,20 @@ public class RobotContainer {
 
     CopilotCommandController.y().whileTrue(yeetPassCommand);
 
-    CopilotCommandController.rightBumper().whileTrue(
-      new RunCommand (
-        () -> rearIntake.setState (
-          RearIntake.State.INTAKE_COLLECT), rearIntake)
-    );
-     
+    CopilotCommandController.rightBumper().whileTrue(rearCollectCommand);
+          
 
     CopilotCommandController.leftBumper().whileTrue(frontCollectCommand);
 
 
-    CopilotCommandController.pov(270).whileTrue(
-      new RunCommand (
-        () -> superSystem.setWantedState(
-          SuperSystem.WantedState.EXTEND_HOPPER), superSystem)
-    );
-
-    CopilotCommandController.pov(90).whileTrue(
-      new RunCommand (
-        () -> superSystem.setWantedState(
-          SuperSystem.WantedState.RETRACT_HOPPER), superSystem)
-    );
-
-    CopilotCommandController.pov(0).whileTrue(
-      new RunCommand (
-        () -> rearIntakeLift.setState(
-          RearIntakeLift.State.LIFTED), rearIntakeLift
-        )
-    );
-
-    CopilotCommandController.pov(180).whileTrue(
-      new RunCommand (
-        () -> rearIntakeLift.setState(
-          RearIntakeLift.State.EXTENDED), rearIntakeLift
-        )
-    );
+    CopilotCommandController.pov(270).whileTrue(ExtendHopperCommand);
+    
+    CopilotCommandController.pov(90).whileTrue(RetractHopperCommand);
+     
+    CopilotCommandController.pov(0).whileTrue(LiftRearIntakeCommand);
+     
+    CopilotCommandController.pov(180).whileTrue(ExtendRearIntakeCommand);
+    
     
 
       
