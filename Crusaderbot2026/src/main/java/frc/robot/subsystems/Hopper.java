@@ -2,14 +2,12 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkBase;
-import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
@@ -28,13 +26,32 @@ public class Hopper extends SubsystemBase {
 
     private final SparkMax m_Hopper;
     private final RelativeEncoder hopperEncoder;
-    private final SparkClosedLoopController hopperController;
 
     // Tunable Positions
     private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION;
     private final double shufflePosition = Constants.FuelSystemConstants.HOPPER_SHUFFLE_POSITION;
+    private final double retractedPosition = Constants.FuelSystemConstants.HOPPER_RETRACT_POSITION;
 
+    // Tunable control
     private final double positionTolerance = 0.5;
+    private final double slowZone = 2.0; // begin slowing this far from target
+
+    // Normal extend/retract speeds
+    private final double fastExtendSpeed = 0.18;
+    private final double slowExtendSpeed = 0.10;
+    private final double fastRetractSpeed = -0.18;
+    private final double slowRetractSpeed = -0.10;
+
+    // Shuffle speeds (a little gentler)
+    private final double fastShuffleExtendSpeed = 0.12;
+    private final double slowShuffleExtendSpeed = 0.08;
+    private final double fastShuffleRetractSpeed = -0.12;
+    private final double slowShuffleRetractSpeed = -0.08;
+
+    // Shuffle timing
+    private final double shufflePauseSeconds = 0.10;
+    private final Timer shufflePauseTimer = new Timer();
+    private boolean shufflePaused = false;
 
     // Shuffle control
     private boolean shuffleGoingOut = true;
@@ -48,16 +65,11 @@ public class Hopper extends SubsystemBase {
         );
 
         SparkMaxConfig config = new SparkMaxConfig();
-        
+
         config.inverted(false);
         config.idleMode(IdleMode.kBrake);
         config.smartCurrentLimit(Constants.MotorConstants.CURRENT_LIMIT_NEO);
         config.voltageCompensation(Constants.MotorConstants.VOLTAGE_COMPENSATION);
-
-        // Closed-loop tuning
-        config.closedLoop
-            .pid(0.4, 0.0, 0.0)
-            .outputRange(-0.15, 0.15);
 
         m_Hopper.configure(
             config,
@@ -66,10 +78,10 @@ public class Hopper extends SubsystemBase {
         );
 
         hopperEncoder = m_Hopper.getEncoder();
-        hopperController = m_Hopper.getClosedLoopController();
 
-        // Assume starting at "home"
+        // Assume starting at home
         hopperEncoder.setPosition(0.0);
+        m_Hopper.set(0.0);
     }
 
     /* =============================
@@ -83,6 +95,9 @@ public class Hopper extends SubsystemBase {
             if (newState == State.SHUFFLE) {
                 shuffleGoingOut = true;
                 currentTarget = openPosition;
+                shufflePaused = false;
+                shufflePauseTimer.stop();
+                shufflePauseTimer.reset();
             }
         }
     }
@@ -93,7 +108,7 @@ public class Hopper extends SubsystemBase {
 
     public void stop() {
         currentState = State.IDLE;
-        m_Hopper.set(0);
+        m_Hopper.set(0.0);
     }
 
     /* =============================
@@ -104,10 +119,6 @@ public class Hopper extends SubsystemBase {
         return hopperEncoder.getPosition();
     }
 
-    /**
-     * Call this when the hopper is physically at the home position.
-     * (Driver button or robot init)
-     */
     public void zeroEncoder() {
         hopperEncoder.setPosition(0.0);
     }
@@ -117,7 +128,39 @@ public class Hopper extends SubsystemBase {
     }
 
     public boolean isExtended() {
-    return Math.abs(getPosition() - Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION) < 0.5;
+        return Math.abs(getPosition() - openPosition) < positionTolerance;
+    }
+
+    public boolean isRetracted() {
+        return Math.abs(getPosition() - retractedPosition) < positionTolerance;
+    }
+
+    /* =============================
+       Internal Helpers
+       ============================= */
+
+    private double moveTowardTarget(
+        double target,
+        double fastPositiveSpeed,
+        double slowPositiveSpeed,
+        double fastNegativeSpeed,
+        double slowNegativeSpeed
+    ) {
+        double position = getPosition();
+        double error = target - position;
+        double absError = Math.abs(error);
+
+        if (absError < positionTolerance) {
+            return 0.0;
+        }
+
+        boolean useSlowSpeed = absError < slowZone;
+
+        if (error > 0) {
+            return useSlowSpeed ? slowPositiveSpeed : fastPositiveSpeed;
+        } else {
+            return useSlowSpeed ? slowNegativeSpeed : fastNegativeSpeed;
+        }
     }
 
     /* =============================
@@ -127,57 +170,79 @@ public class Hopper extends SubsystemBase {
     @Override
     public void periodic() {
 
-        double position = hopperEncoder.getPosition();
+        double output = 0.0;
+        double position = getPosition();
 
         switch (currentState) {
 
             case IDLE:
-                m_Hopper.set(0);
+                output = 0.0;
                 break;
 
             case EXTENDING:
-                hopperController.setReference(
-                    openPosition,
-                    ControlType.kPosition,
-                    ClosedLoopSlot.kSlot0
-                );
                 currentTarget = openPosition;
+                output = moveTowardTarget(
+                    currentTarget,
+                    fastExtendSpeed,
+                    slowExtendSpeed,
+                    fastRetractSpeed,
+                    slowRetractSpeed
+                );
                 break;
 
             case RETRACTING:
-                hopperController.setReference(
-                    0.0,
-                    ControlType.kPosition,
-                    ClosedLoopSlot.kSlot0
+                currentTarget = retractedPosition;
+                output = moveTowardTarget(
+                    currentTarget,
+                    fastExtendSpeed,
+                    slowExtendSpeed,
+                    fastRetractSpeed,
+                    slowRetractSpeed
                 );
-                currentTarget = 0.0;
                 break;
 
             case SHUFFLE:
+                if (shufflePaused) {
+                    output = 0.0;
 
-                if (Math.abs(position - currentTarget) < positionTolerance) {
-                    shuffleGoingOut = !shuffleGoingOut;
+                    if (shufflePauseTimer.hasElapsed(shufflePauseSeconds)) {
+                        shufflePaused = false;
+                        shufflePauseTimer.stop();
+                        shufflePauseTimer.reset();
 
-                    currentTarget = shuffleGoingOut
-                        ? openPosition
-                        : shufflePosition;
+                        shuffleGoingOut = !shuffleGoingOut;
+                        currentTarget = shuffleGoingOut ? openPosition : shufflePosition;
+                    }
+                    break;
                 }
 
-                hopperController.setReference(
-                    currentTarget,
-                    ControlType.kPosition,
-                    ClosedLoopSlot.kSlot0
-                );
+                if (Math.abs(position - currentTarget) < positionTolerance) {
+                    output = 0.0;
+                    shufflePaused = true;
+                    shufflePauseTimer.restart();
+                    break;
+                }
 
+                output = moveTowardTarget(
+                    currentTarget,
+                    fastShuffleExtendSpeed,
+                    slowShuffleExtendSpeed,
+                    fastShuffleRetractSpeed,
+                    slowShuffleRetractSpeed
+                );
                 break;
         }
+
+        m_Hopper.set(output);
 
         /* =============================
            Dashboard Logging
            ============================= */
 
         Dashboard.logString("Hopper State", () -> currentState.toString());
-        Dashboard.logNumber("Hopper Position", hopperEncoder::getPosition);
+        Dashboard.logNumber("Hopper Position", this::getPosition);
         Dashboard.logNumber("Hopper Target", () -> currentTarget);
+        Dashboard.logBoolean("Hopper At Target", this::atTarget);
+        Dashboard.logBoolean("Hopper Shuffle Paused", () -> shufflePaused);
     }
 }

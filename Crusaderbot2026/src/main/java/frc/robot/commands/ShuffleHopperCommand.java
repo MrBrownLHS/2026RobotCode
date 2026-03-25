@@ -14,12 +14,11 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
  * the command ends it returns the SuperSystem to IDLE. This makes it suitable for
  * binding with whileTrue(...) so releasing the button stops collection immediately.
  */
-public class ShuffleHopperCommand extends StartEndCommand {
+public class ShuffleHopperCommand extends RunCommand {
   
   public ShuffleHopperCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setWantedState(SuperSystem.WantedState.SHUFFLE_HOPPER),
-        () -> superSystem.setWantedState(SuperSystem.WantedState.IDLE),
         superSystem);
   }
 }

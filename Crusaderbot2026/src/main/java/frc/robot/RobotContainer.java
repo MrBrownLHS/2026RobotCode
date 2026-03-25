@@ -92,8 +92,8 @@ public class RobotContainer {
   private final YeetPassCommand yeetPassCommand = new YeetPassCommand(superSystem);
   private final RearCollectCommand rearCollectCommand = new RearCollectCommand(rearIntake);
   private final ShuffleHopperCommand shuffleHopperCommand = new ShuffleHopperCommand(superSystem);
-  private final ExtendHopperCommand ExtendHopperCommand = new ExtendHopperCommand(superSystem, hopper, rearIntakeLift);
-  private final RetractHopperCommand RetractHopperCommand = new RetractHopperCommand(superSystem, hopper, rearIntakeLift);
+  private final ExtendHopperCommand ExtendHopperCommand = new ExtendHopperCommand(superSystem);
+  private final RetractHopperCommand RetractHopperCommand = new RetractHopperCommand(superSystem);
   private final LiftRearIntakeCommand LiftRearIntakeCommand = new LiftRearIntakeCommand(rearIntakeLift);
   private final ExtendRearIntakeCommand ExtendRearIntakeCommand = new ExtendRearIntakeCommand(rearIntakeLift);
   
@@ -198,8 +198,8 @@ public class RobotContainer {
 
     CopilotCommandController.leftTrigger(0.5).whileTrue(launchCloseCommand);
         
-    CopilotCommandController.a().whileTrue(
-      new ShuffleHopperCommand(superSystem))
+    CopilotCommandController.a()
+      .whileTrue(new ShuffleHopperCommand(superSystem))
       .onFalse(new InstantCommand(() -> {
         hopper.setState(Hopper.State.IDLE);
         rearIntake.setState(RearIntake.State.IDLE);
@@ -212,19 +212,41 @@ public class RobotContainer {
 
     CopilotCommandController.y().whileTrue(yeetPassCommand);
 
-    CopilotCommandController.rightBumper().whileTrue(rearCollectCommand);
-          
+    CopilotCommandController.rightBumper()
+      .whileTrue(new RearCollectCommand(rearIntake))
+      .onFalse(new InstantCommand(
+          () -> rearIntake.setState(RearIntake.State.IDLE),
+          rearIntake));
+            
 
     CopilotCommandController.leftBumper().whileTrue(frontCollectCommand);
 
 
-    CopilotCommandController.pov(270).whileTrue(ExtendHopperCommand);
+    CopilotCommandController.pov(270)
+      .whileTrue(new ExtendHopperCommand(superSystem))
+      .onFalse(new InstantCommand(() -> {
+        hopper.setState(Hopper.State.IDLE);
+        rearIntakeLift.setState(RearIntakeLift.State.IDLE);
+      }));
     
-    CopilotCommandController.pov(90).whileTrue(RetractHopperCommand);
+    CopilotCommandController.pov(90)
+      .whileTrue(new RetractHopperCommand(superSystem))
+      .onFalse(new InstantCommand(() -> {
+        hopper.setState(Hopper.State.IDLE);
+        rearIntakeLift.setState(RearIntakeLift.State.IDLE);
+      }));
      
-    CopilotCommandController.pov(0).whileTrue(LiftRearIntakeCommand);
+    CopilotCommandController.pov(0)
+      .whileTrue(new LiftRearIntakeCommand(rearIntakeLift))
+      .onFalse(new InstantCommand(() -> {
+        rearIntakeLift.setState(RearIntakeLift.State.IDLE);
+      }));
      
-    CopilotCommandController.pov(180).whileTrue(ExtendRearIntakeCommand);
+    CopilotCommandController.pov(180)
+      .whileTrue(new ExtendRearIntakeCommand(rearIntakeLift))
+      .onFalse(new InstantCommand(() -> {
+        rearIntakeLift.setState(RearIntakeLift.State.IDLE);
+      }));
     
     
 

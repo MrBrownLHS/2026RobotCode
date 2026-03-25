@@ -137,12 +137,11 @@ public class SuperSystem extends SubsystemBase {
 
         case SHUFFLE_HOPPER:
             hopper.setState(Hopper.State.EXTENDING);
-            rearIntakeLift.setState(RearIntakeLift.State.EXTENDED);
+            rearIntakeLift.setState(RearIntakeLift.State.STORED);
             
-            if (hopper.isExtended() && rearIntakeLift.isExtended()) {
+            if (hopper.isExtended() && rearIntakeLift.isStored()) {
               hopper.setState(Hopper.State.SHUFFLE);
               rearIntakeLift.setState(RearIntakeLift.State.SHUFFLE);
-              rearIntake.setState(RearIntake.State.INTAKE_REVERSE);
             }
             
             break;
