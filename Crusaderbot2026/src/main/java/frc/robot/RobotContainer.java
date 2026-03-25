@@ -35,11 +35,7 @@ import frc.robot.commands.ExtendRearIntakeCommand;
 import frc.robot.commands.RearCollectCommand;
 import frc.robot.commands.RetractHopperCommand;
 import frc.robot.commands.ShuffleHopperCommand;
-import frc.robot.commands.LiftRearIntakeCommand;
-import frc.robot.commands.ExtendRearIntakeCommand;
-import frc.robot.commands.ExtendHopperCommand;
-import frc.robot.commands.RetractHopperCommand;
-import frc.robot.commands.RearCollectCommand;
+
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
 
