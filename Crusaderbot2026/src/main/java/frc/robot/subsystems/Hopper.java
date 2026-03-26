@@ -35,7 +35,7 @@ public class Hopper extends SubsystemBase {
     private final double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED;
 
     // Tunable control
-    private final double positionTolerance = 0.5;
+    private final double positionTolerance = 0.2;
     private final double slowZone = 2.0; // retained for compatibility, not used
 
 

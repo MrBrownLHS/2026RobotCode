@@ -60,7 +60,7 @@ public class Constants {
         public static final double AGITATOR_REVERSE_SPEED = 0.15; //Tune during testing
     //Hopper
         public static final int HOPPER_MOTOR_ID = 17;
-        public static final int HOPPER_HOME_SWITCH_DIO = 0;
+        //public static final int HOPPER_HOME_SWITCH_DIO = 0;
         public static final double HOPPER_EXTEND_SPEED = 0.15; //Tune during testing
         public static final double HOPPER_EXTEND_POSITION = 8.5; //Tune during testing
         public static final double HOPPER_RETRACT_SPEED = -0.15;

@@ -182,19 +182,20 @@ public class SuperSystem extends SubsystemBase {
         break;
 
       case EXTEND_HOPPER:
+        
         hopper.setState(Hopper.State.EXTENDING);
 
-        // Lift should always extend when hopper extends
-        commandedLiftState = RearIntakeLift.State.EXTENDED;
+        if (!hopper.isExtended()) {
+          commandedLiftState = RearIntakeLift.State.EXTENDED;
+        }
         break;
 
       case RETRACT_HOPPER:
-        // Lift should always store before hopper retracts
-        commandedLiftState = RearIntakeLift.State.STORED;
+        rearIntakeLift.setState(RearIntakeLift.State.STORED);
 
-        if (rearIntakeLift.isStored()) {
+        if (!rearIntakeLift.isStored()) {
           hopper.setState(Hopper.State.RETRACTING);
-        } 
+        }
         break;
 
       case REAR_COLLECT:
