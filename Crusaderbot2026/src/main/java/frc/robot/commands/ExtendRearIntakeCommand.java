@@ -19,7 +19,7 @@ public class ExtendRearIntakeCommand extends StartEndCommand {
   public ExtendRearIntakeCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.EXTENDED),
-        () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.IDLE),
-        superSystem);
+        () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.IDLE)
+        );
   }
 }

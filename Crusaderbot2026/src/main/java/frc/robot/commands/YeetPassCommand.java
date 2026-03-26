@@ -14,8 +14,8 @@ public class YeetPassCommand extends StartEndCommand {
     super(
         () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.YEET_PASS),
         // onEnd: return to IDLE when the command ends (button released)
-        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE),
-        superSystem);
+        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE)
+    );
   }
 }
 

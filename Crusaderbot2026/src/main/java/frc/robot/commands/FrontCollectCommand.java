@@ -16,7 +16,7 @@ public class FrontCollectCommand extends StartEndCommand {
   public FrontCollectCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.FRONT_COLLECT),
-        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE),
-        superSystem);
+        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE)
+        );
   }
 }

@@ -13,7 +13,7 @@ public class StopAllCommand extends InstantCommand {
     super(() -> {
       superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE);
       superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);
-    },
-          superSystem);
+      }
+    );
   }
 }

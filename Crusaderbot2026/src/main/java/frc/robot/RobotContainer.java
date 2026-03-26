@@ -34,7 +34,7 @@ import frc.robot.commands.ExtendHopperCommand;
 import frc.robot.commands.ExtendRearIntakeCommand;
 import frc.robot.commands.RearCollectCommand;
 import frc.robot.commands.RetractHopperCommand;
-import frc.robot.commands.ShuffleHopperCommand;
+import frc.robot.commands.ShuffleCommand;
 
 // Project commands and subsystems
 import frc.robot.commands.SwerveController;
@@ -87,7 +87,7 @@ public class RobotContainer {
   private final ReverseCollectorCommand reverseCollectorCommand = new ReverseCollectorCommand(superSystem);
   private final YeetPassCommand yeetPassCommand = new YeetPassCommand(superSystem);
   private final RearCollectCommand rearCollectCommand = new RearCollectCommand(superSystem);
-  private final ShuffleHopperCommand shuffleHopperCommand = new ShuffleHopperCommand(superSystem);
+  private final ShuffleCommand shuffleCommand = new ShuffleCommand(hopper, rearIntake, rearIntakeLift);
   private final ExtendHopperCommand extendHopperCommand = new ExtendHopperCommand(superSystem);
   private final RetractHopperCommand retractHopperCommand = new RetractHopperCommand(superSystem);
   private final LiftRearIntakeCommand liftRearIntakeCommand = new LiftRearIntakeCommand(superSystem);
@@ -194,7 +194,7 @@ public class RobotContainer {
 
     CopilotCommandController.leftTrigger(0.5).whileTrue(launchCloseCommand);
         
-    CopilotCommandController.a().whileTrue(shuffleHopperCommand);
+    CopilotCommandController.a().whileTrue(shuffleCommand);
      
     CopilotCommandController.b().whileTrue(reverseCollectorCommand);
     

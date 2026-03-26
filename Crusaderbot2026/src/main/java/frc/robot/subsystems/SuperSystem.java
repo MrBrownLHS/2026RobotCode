@@ -191,11 +191,10 @@ public class SuperSystem extends SubsystemBase {
         break;
 
       case RETRACT_HOPPER:
-        rearIntakeLift.setState(RearIntakeLift.State.STORED);
-
-        if (!rearIntakeLift.isStored()) {
+       commandedLiftState = RearIntakeLift.State.LIFTED; 
+       if (!rearIntakeLift.isLifted()) {
           hopper.setState(Hopper.State.RETRACTING);
-        }
+      }
         break;
 
       case REAR_COLLECT:
@@ -204,24 +203,6 @@ public class SuperSystem extends SubsystemBase {
       
       case REAR_COLLECT_IDLE:
         rearIntake.setState(RearIntake.State.IDLE);
-        break;
-
-      case SHUFFLE_HOPPER:
-        hopper.setState(Hopper.State.EXTENDING);
-
-        // Start with lift stored, then shuffle once ready
-        if (hopper.isExtended()) {
-          if (rearIntakeLift.isStored() || rearIntakeLift.getState() == RearIntakeLift.State.SHUFFLE) {
-            hopper.setState(Hopper.State.SHUFFLE);
-            commandedLiftState = RearIntakeLift.State.SHUFFLE;
-          } else {
-            commandedLiftState = RearIntakeLift.State.STORED;
-          }
-        } else {
-          commandedLiftState = RearIntakeLift.State.STORED;
-        }
-
-        rearIntake.setState(RearIntake.State.INTAKE_REVERSE);
         break;
 
       case REVERSE:
@@ -254,9 +235,6 @@ public class SuperSystem extends SubsystemBase {
           rearIntakeLift.setState(RearIntakeLift.State.EXTENDED);
           break;
 
-        case SHUFFLE:
-          rearIntakeLift.setState(RearIntakeLift.State.SHUFFLE);
-          break;
       }
     }
 

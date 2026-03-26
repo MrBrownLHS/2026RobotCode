@@ -18,7 +18,7 @@ public class LiftRearIntakeCommand extends StartEndCommand {
   public LiftRearIntakeCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.LIFTED),
-        () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.IDLE),
-        superSystem);
+        () -> superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.IDLE)
+    );
   }
 }

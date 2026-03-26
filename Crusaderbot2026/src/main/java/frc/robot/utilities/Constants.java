@@ -49,8 +49,8 @@ public class Constants {
         public static final double REARINTAKE_MOTOR_REVERSE_SPEED = -0.25; //Tune during testing
     //Rear Intake Lift  
         public static final int REAR_INTAKE_LIFT_MOTOR_ID = 14;
-        public static final double REAR_INTAKE_LIFT_SPEED = -0.15;
-        public static final double REAR_INTAKE_EXTEND_SPEED = 0.15;
+        public static final double REAR_INTAKE_LIFT_SPEED = 0.15;
+        public static final double REAR_INTAKE_EXTEND_SPEED = -0.15;
         public static final double REAR_INTAKE_LIFT_STORED_POSITION = 0.0; //Tune during testing
         public static final double REAR_INTAKE_LIFT_LIFTED_POSITION = -1.5; //Tune during testing
         public static final double REAR_INTAKE_LIFT_EXTEND_POSITION = 2.0; //Tune during testing
@@ -65,7 +65,7 @@ public class Constants {
         public static final double HOPPER_EXTEND_POSITION = 8.5; //Tune during testing
         public static final double HOPPER_RETRACT_SPEED = -0.15;
         public static final double HOPPER_RETRACT_POSITION = 0.0; //Tune during testing
-        public static final double HOPPER_SHUFFLE_SPEED = 0.15; //Tune during testing
+        public static final double HOPPER_SHUFFLE_SPEED = 0.05; //Tune during testing
         public static final double HOPPER_SHUFFLE_POSITION = 4.0; //
     
         

@@ -7,7 +7,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.RelativeEncoder;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.utilities.Constants;
@@ -19,7 +18,7 @@ public class Hopper extends SubsystemBase {
         IDLE,
         EXTENDING,
         RETRACTING,
-        SHUFFLE
+        SHUFFLE_IN
     }
 
     private State currentState = State.IDLE;
@@ -31,26 +30,13 @@ public class Hopper extends SubsystemBase {
     private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION;
     private final double shufflePosition = Constants.FuelSystemConstants.HOPPER_SHUFFLE_POSITION;
     private final double retractedPosition = Constants.FuelSystemConstants.HOPPER_RETRACT_POSITION;
+
+    // Tunable control
+    private final double positionTolerance = 0.5;
     private final double extendSpeed = Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED;
     private final double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED;
 
-    // Tunable control
-    private final double positionTolerance = 0.2;
-    private final double slowZone = 2.0; // retained for compatibility, not used
-
-
-    // Shuffle speeds
-    private final double shuffleExtendSpeed = 0.10;
-    private final double shuffleRetractSpeed = -0.10;
-
-    // Shuffle timing
-    private final double shufflePauseSeconds = 0.10;
-    private final Timer shufflePauseTimer = new Timer();
-    private boolean shufflePaused = false;
-
-    // Shuffle control
-    private boolean shuffleGoingOut = true;
-    private double currentTarget = openPosition;
+    private double currentTarget = 0.0;
 
     public Hopper() {
 
@@ -84,17 +70,7 @@ public class Hopper extends SubsystemBase {
        ============================= */
 
     public void setState(State newState) {
-        if (newState != currentState) {
-            currentState = newState;
-
-            if (newState == State.SHUFFLE) {
-                shuffleGoingOut = true;
-                currentTarget = openPosition;
-                shufflePaused = false;
-                shufflePauseTimer.stop();
-                shufflePauseTimer.reset();
-            }
-        }
+        currentState = newState;
     }
 
     public State getState() {
@@ -130,6 +106,10 @@ public class Hopper extends SubsystemBase {
         return Math.abs(getPosition() - retractedPosition) < positionTolerance;
     }
 
+    public boolean atShuffleIn() {
+        return Math.abs(getPosition() - shufflePosition) < positionTolerance;
+    }
+
     /* =============================
        Internal Helpers
        ============================= */
@@ -161,11 +141,11 @@ public class Hopper extends SubsystemBase {
     public void periodic() {
 
         double output = 0.0;
-        double position = getPosition();
 
         switch (currentState) {
 
             case IDLE:
+                currentTarget = getPosition();
                 output = 0.0;
                 break;
 
@@ -187,32 +167,12 @@ public class Hopper extends SubsystemBase {
                 );
                 break;
 
-            case SHUFFLE:
-                if (shufflePaused) {
-                    output = 0.0;
-
-                    if (shufflePauseTimer.hasElapsed(shufflePauseSeconds)) {
-                        shufflePaused = false;
-                        shufflePauseTimer.stop();
-                        shufflePauseTimer.reset();
-
-                        shuffleGoingOut = !shuffleGoingOut;
-                        currentTarget = shuffleGoingOut ? openPosition : shufflePosition;
-                    }
-                    break;
-                }
-
-                if (Math.abs(position - currentTarget) < positionTolerance) {
-                    output = 0.0;
-                    shufflePaused = true;
-                    shufflePauseTimer.restart();
-                    break;
-                }
-
+            case SHUFFLE_IN:
+                currentTarget = shufflePosition;
                 output = moveTowardTarget(
                     currentTarget,
-                    shuffleExtendSpeed,
-                    shuffleRetractSpeed
+                    extendSpeed,
+                    retractSpeed
                 );
                 break;
         }
@@ -227,6 +187,8 @@ public class Hopper extends SubsystemBase {
         Dashboard.logNumber("Hopper Position", this::getPosition);
         Dashboard.logNumber("Hopper Target", () -> currentTarget);
         Dashboard.logBoolean("Hopper At Target", this::atTarget);
-        Dashboard.logBoolean("Hopper Shuffle Paused", () -> shufflePaused);
+        Dashboard.logBoolean("Hopper Extended", this::isExtended);
+        Dashboard.logBoolean("Hopper Retracted", this::isRetracted);
+        Dashboard.logBoolean("Hopper At Shuffle In", this::atShuffleIn);
     }
 }

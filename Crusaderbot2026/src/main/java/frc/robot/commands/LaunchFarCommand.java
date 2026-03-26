@@ -15,8 +15,8 @@ public class LaunchFarCommand extends StartEndCommand {
         // onStart: set desired state to LAUNCH_FAR
         () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.LAUNCH_FAR),
         // onEnd: return to IDLE when the command ends (button released)
-        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE),
-        superSystem);
+        () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE)
+    );
   }
 }
 

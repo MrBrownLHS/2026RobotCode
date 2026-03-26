@@ -20,7 +20,7 @@ public class ReverseCollectorCommand extends StartEndCommand {
         // onEnd: return to IDLE when the command ends (button released)
         () -> {
           superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE);
-          superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);},
-        superSystem);
+          superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);}
+    );
   }
 }

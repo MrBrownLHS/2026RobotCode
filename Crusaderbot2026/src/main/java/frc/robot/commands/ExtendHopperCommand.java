@@ -18,7 +18,7 @@ public class ExtendHopperCommand extends StartEndCommand {
   public ExtendHopperCommand(SuperSystem superSystem) {
     super(
         () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.EXTEND_HOPPER),
-        () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE),
-        superSystem);
+        () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE)
+        );
   } 
 }
