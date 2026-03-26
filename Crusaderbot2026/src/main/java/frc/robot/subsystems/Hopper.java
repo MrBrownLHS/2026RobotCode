@@ -31,22 +31,17 @@ public class Hopper extends SubsystemBase {
     private final double openPosition = Constants.FuelSystemConstants.HOPPER_EXTEND_POSITION;
     private final double shufflePosition = Constants.FuelSystemConstants.HOPPER_SHUFFLE_POSITION;
     private final double retractedPosition = Constants.FuelSystemConstants.HOPPER_RETRACT_POSITION;
+    private final double extendSpeed = Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED;
+    private final double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED;
 
     // Tunable control
     private final double positionTolerance = 0.5;
-    private final double slowZone = 2.0; // begin slowing this far from target
+    private final double slowZone = 2.0; // retained for compatibility, not used
 
-    // Normal extend/retract speeds
-    private final double fastExtendSpeed = 0.18;
-    private final double slowExtendSpeed = 0.10;
-    private final double fastRetractSpeed = -0.18;
-    private final double slowRetractSpeed = -0.10;
 
-    // Shuffle speeds (a little gentler)
-    private final double fastShuffleExtendSpeed = 0.12;
-    private final double slowShuffleExtendSpeed = 0.08;
-    private final double fastShuffleRetractSpeed = -0.12;
-    private final double slowShuffleRetractSpeed = -0.08;
+    // Shuffle speeds
+    private final double shuffleExtendSpeed = 0.10;
+    private final double shuffleRetractSpeed = -0.10;
 
     // Shuffle timing
     private final double shufflePauseSeconds = 0.10;
@@ -141,25 +136,20 @@ public class Hopper extends SubsystemBase {
 
     private double moveTowardTarget(
         double target,
-        double fastPositiveSpeed,
-        double slowPositiveSpeed,
-        double fastNegativeSpeed,
-        double slowNegativeSpeed
+        double positiveSpeed,
+        double negativeSpeed
     ) {
         double position = getPosition();
         double error = target - position;
-        double absError = Math.abs(error);
 
-        if (absError < positionTolerance) {
+        if (Math.abs(error) < positionTolerance) {
             return 0.0;
         }
 
-        boolean useSlowSpeed = absError < slowZone;
-
         if (error > 0) {
-            return useSlowSpeed ? slowPositiveSpeed : fastPositiveSpeed;
+            return positiveSpeed;
         } else {
-            return useSlowSpeed ? slowNegativeSpeed : fastNegativeSpeed;
+            return negativeSpeed;
         }
     }
 
@@ -183,10 +173,8 @@ public class Hopper extends SubsystemBase {
                 currentTarget = openPosition;
                 output = moveTowardTarget(
                     currentTarget,
-                    fastExtendSpeed,
-                    slowExtendSpeed,
-                    fastRetractSpeed,
-                    slowRetractSpeed
+                    extendSpeed,
+                    retractSpeed
                 );
                 break;
 
@@ -194,10 +182,8 @@ public class Hopper extends SubsystemBase {
                 currentTarget = retractedPosition;
                 output = moveTowardTarget(
                     currentTarget,
-                    fastExtendSpeed,
-                    slowExtendSpeed,
-                    fastRetractSpeed,
-                    slowRetractSpeed
+                    extendSpeed,
+                    retractSpeed
                 );
                 break;
 
@@ -225,10 +211,8 @@ public class Hopper extends SubsystemBase {
 
                 output = moveTowardTarget(
                     currentTarget,
-                    fastShuffleExtendSpeed,
-                    slowShuffleExtendSpeed,
-                    fastShuffleRetractSpeed,
-                    slowShuffleRetractSpeed
+                    shuffleExtendSpeed,
+                    shuffleRetractSpeed
                 );
                 break;
         }

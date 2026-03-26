@@ -130,10 +130,6 @@ public class SuperSystem extends SubsystemBase {
 
         if (launcher.atSpeed()) {
           intake.setState(FrontIntake.State.INTAKE_COLLECT);
-          agitator.setState(Agitator.State.IDLE);
-        } else {
-          intake.setState(FrontIntake.State.IDLE);
-          agitator.setState(Agitator.State.IDLE);
         }
         break;
 
@@ -143,9 +139,6 @@ public class SuperSystem extends SubsystemBase {
         if (launcher.atSpeed()) {
           intake.setState(FrontIntake.State.INTAKE_LAUNCH);
           agitator.setState(Agitator.State.AGITATE);
-        } else {
-          intake.setState(FrontIntake.State.IDLE);
-          agitator.setState(Agitator.State.IDLE);
         }
         break;
 
@@ -155,10 +148,7 @@ public class SuperSystem extends SubsystemBase {
         if (launcher.atSpeed()) {
           intake.setState(FrontIntake.State.INTAKE_LAUNCH);
           agitator.setState(Agitator.State.AGITATE);
-        } else {
-          intake.setState(FrontIntake.State.IDLE);
-          agitator.setState(Agitator.State.IDLE);
-        }
+        } 
         break;
 
       case YEET_PASS:
@@ -167,10 +157,7 @@ public class SuperSystem extends SubsystemBase {
         if (launcher.atSpeed()) {
           intake.setState(FrontIntake.State.INTAKE_LAUNCH);
           agitator.setState(Agitator.State.AGITATE);
-        } else {
-          intake.setState(FrontIntake.State.IDLE);
-          agitator.setState(Agitator.State.IDLE);
-        }
+        } 
         break;
 
       case REVERSE:
@@ -199,8 +186,6 @@ public class SuperSystem extends SubsystemBase {
 
         // Lift should always extend when hopper extends
         commandedLiftState = RearIntakeLift.State.EXTENDED;
-
-        rearIntake.setState(RearIntake.State.IDLE);
         break;
 
       case RETRACT_HOPPER:
@@ -209,20 +194,16 @@ public class SuperSystem extends SubsystemBase {
 
         if (rearIntakeLift.isStored()) {
           hopper.setState(Hopper.State.RETRACTING);
-        } else {
-          hopper.setState(Hopper.State.IDLE);
-        }
-
-        rearIntake.setState(RearIntake.State.IDLE);
+        } 
         break;
 
       case REAR_COLLECT:
         rearIntake.setState(RearIntake.State.INTAKE_COLLECT);
-
         break;
       
       case REAR_COLLECT_IDLE:
         rearIntake.setState(RearIntake.State.IDLE);
+        break;
 
       case SHUFFLE_HOPPER:
         hopper.setState(Hopper.State.EXTENDING);
@@ -243,7 +224,6 @@ public class SuperSystem extends SubsystemBase {
         break;
 
       case REVERSE:
-        hopper.setState(Hopper.State.IDLE);
         rearIntake.setState(RearIntake.State.INTAKE_REVERSE);
         break;
     }
