@@ -29,7 +29,7 @@ public class RearIntakeLift extends SubsystemBase {
   private final RelativeEncoder encoder;
 
   // Tunable values
-  private final double tolerance = 0.20;
+  private final double tolerance = 0.10;
   private final double upSpeed = Constants.FuelSystemConstants.REAR_INTAKE_LIFT_SPEED;
   private final double downSpeed = Constants.FuelSystemConstants.REAR_INTAKE_EXTEND_SPEED;
 
