@@ -124,7 +124,7 @@ public class RobotContainer {
     autoChooser = new SendableChooser<>();
     // Populate autonomous chooser (default safe/no-op + Auto Center Launch Climb)
     autoChooser.setDefaultOption("DoNothing", new InstantCommand());
-    autoChooser.addOption("AutoRotateLaunch", new AutoRotateLaunch(swerveSubsystem, superSystem, hopper));
+    autoChooser.addOption("AutoRotateLaunch", new AutoRotateLaunch(swerveSubsystem, superSystem));
     SmartDashboard.putData("AutoChooser", autoChooser);
 
 
@@ -148,9 +148,9 @@ public class RobotContainer {
     // sends velocities to the swerve subsystem while no other command runs it.
     swerveSubsystem.setDefaultCommand(new SwerveController(
             swerveSubsystem,
-            () -> -translationLimiter.calculate(DriverController.getRawAxis(translationAxis)),
-            () -> -strafeLimiter.calculate(DriverController.getRawAxis(strafeAxis)),
-            () -> rotationLimiter.calculate(DriverController.getRawAxis(rotationAxis)),
+            () -> -translationLimiter.calculate(DriverController.getRawAxis(translationAxis) * 0.90),
+            () -> -strafeLimiter.calculate(DriverController.getRawAxis(strafeAxis) * 0.90),
+            () -> rotationLimiter.calculate(DriverController.getRawAxis(rotationAxis) * 0.90),
             () -> robotCentric.getAsBoolean()) // lambda probably not needed but why not
     );
 

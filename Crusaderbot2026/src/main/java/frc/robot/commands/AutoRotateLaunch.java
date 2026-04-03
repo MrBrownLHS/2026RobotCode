@@ -1,64 +1,83 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.subsystems.Hopper;
 import frc.robot.subsystems.Swerve;
 import frc.robot.subsystems.SuperSystem;
-import frc.robot.subsystems.Hopper;
-
+import frc.robot.subsystems.RearIntake;
+import frc.robot.subsystems.RearIntakeLift;
 
 public class AutoRotateLaunch extends SequentialCommandGroup {
 
-    public AutoRotateLaunch(Swerve swerve, SuperSystem superSystem, Hopper hopper) {
+    public AutoRotateLaunch(
+        Swerve swerve, 
+        SuperSystem superSystem, 
+        Hopper hopper, 
+        RearIntake rearIntake, 
+        RearIntakeLift rearIntakeLift) {
 
         addCommands(
 
-            // Reset gyro heading
-            new RunCommand(() -> swerve.resetHeading(), swerve).withTimeout(0.05),
-
-            // Back up ~2 ft
+             // Back up
             new RunCommand(
-                () -> swerve.drive(new Translation2d(-0.6, 0), 0, false, false),
+                () -> swerve.drive(new Translation2d(-0.6, 0), 0.0, false, false),
                 swerve
             ).withTimeout(1.2),
 
-            new WaitCommand(0.2),
-
-            // Turn to 180 degrees
-            new RunCommand(
-                () -> swerve.turnToAngle(180),
+            // Stop drive
+            new InstantCommand(
+                () -> swerve.drive(new Translation2d(0.0, 0.0), 0.0, false, false),
                 swerve
-            )
-            .until(() -> swerve.atAngle(180))
-            .withTimeout(1.5),
+            ),
 
             new WaitCommand(0.2),
 
+            // Timed rotate instead of turnToAngle(180)
             new RunCommand(
+                () -> swerve.drive(new Translation2d(0.0, 0.0), 0.5, false, false),
+                swerve
+            ).withTimeout(3.5),
+
+            // Stop drive after rotation
+            new InstantCommand(
+                () -> swerve.drive(new Translation2d(0.0, 0.0), 0.0, false, false),
+                swerve
+            ),
+
+            new WaitCommand(0.2),
+
+            // Extend hopper
+            new InstantCommand(
                 () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.EXTEND_HOPPER),
-                hopper
-            ).withTimeout(0.5),
-
-            // Activate the launcher system
-            new RunCommand(
-                () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.LAUNCH_CLOSE),
                 superSystem
-            ).withTimeout(5.0),
+            ),
 
-            // Return to idle
-            new RunCommand(
-                () -> {
-                    superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE);
-                    superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);
-                },
-                superSystem
-            ).withTimeout(0.05)
+            new WaitCommand(0.5),
+
+            // Run launch + shuffle at the same time for 5 seconds
+            new ParallelDeadlineGroup(
+                new WaitCommand(5.0),
+
+                new RunCommand(
+                    () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.LAUNCH_CLOSE),
+                    superSystem
+                ),
+
+                new ShuffleCommand(hopper, rearIntake, rearIntakeLift)
+            ),
+
+            // Stop everything cleanly
+            new InstantCommand(() -> {
+                superSystem.setFrontWantedState(SuperSystem.FrontWantedState.IDLE);
+                superSystem.setRearWantedState(SuperSystem.RearWantedState.IDLE);
+                superSystem.setRearLiftWantedState(SuperSystem.RearLiftWantedState.IDLE);
+                swerve.drive(new Translation2d(0.0, 0.0), 0.0, false, false);
+            }, superSystem, swerve)
         );
     }
 }
