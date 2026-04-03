@@ -36,20 +36,20 @@ public class AutoRotateLaunch extends SequentialCommandGroup {
                 swerve
             )
             .until(() -> swerve.atAngle(180))
-            .withTimeout(3.0),
+            .withTimeout(1.5),
 
             new WaitCommand(0.2),
 
             new RunCommand(
                 () -> superSystem.setRearWantedState(SuperSystem.RearWantedState.EXTEND_HOPPER),
                 hopper
-            ).withTimeout(1.5),
+            ).withTimeout(0.5),
 
             // Activate the launcher system
             new RunCommand(
                 () -> superSystem.setFrontWantedState(SuperSystem.FrontWantedState.LAUNCH_CLOSE),
                 superSystem
-            ).withTimeout(8.0),
+            ).withTimeout(5.0),
 
             // Return to idle
             new RunCommand(

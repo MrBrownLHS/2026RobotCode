@@ -191,8 +191,8 @@ public class SuperSystem extends SubsystemBase {
         break;
 
       case RETRACT_HOPPER:
-       commandedLiftState = RearIntakeLift.State.LIFTED; 
-       if (!rearIntakeLift.isLifted()) {
+       commandedLiftState = RearIntakeLift.State.STORED; 
+       if (!rearIntakeLift.isStored()) {
           hopper.setState(Hopper.State.RETRACTING);
       }
         break;

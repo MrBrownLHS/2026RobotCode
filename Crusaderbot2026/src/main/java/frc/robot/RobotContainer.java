@@ -148,9 +148,9 @@ public class RobotContainer {
     // sends velocities to the swerve subsystem while no other command runs it.
     swerveSubsystem.setDefaultCommand(new SwerveController(
             swerveSubsystem,
-            () -> -translationLimiter.calculate(DriverController.getRawAxis(translationAxis) * 0.750),
-            () -> -strafeLimiter.calculate(DriverController.getRawAxis(strafeAxis) * 0.750),
-            () -> rotationLimiter.calculate(DriverController.getRawAxis(rotationAxis) * 0.750),
+            () -> -translationLimiter.calculate(DriverController.getRawAxis(translationAxis)),
+            () -> -strafeLimiter.calculate(DriverController.getRawAxis(strafeAxis)),
+            () -> rotationLimiter.calculate(DriverController.getRawAxis(rotationAxis)),
             () -> robotCentric.getAsBoolean()) // lambda probably not needed but why not
     );
 

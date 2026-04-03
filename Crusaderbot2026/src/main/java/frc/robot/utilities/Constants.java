@@ -34,7 +34,7 @@ public class Constants {
         public static final int LAUNCH_MOTOR_LEFT_ID = 20; 
         public static final double YEET_PASS_RPM = 4500;
         public static final double LAUNCH_FAR_RPM = 3500; // Tune
-        public static final double LAUNCH_CLOSE_RPM = 2000; // Tune
+        public static final double LAUNCH_CLOSE_RPM = 2250; // Tune
         public static final double LAUNCH_COLLECT_RPM = 800; // Tune
         public static final double LAUNCH_RPM_TOLERANCE = 300; // Tune
 
@@ -49,10 +49,10 @@ public class Constants {
         public static final double REARINTAKE_MOTOR_REVERSE_SPEED = -0.25; //Tune during testing
     //Rear Intake Lift  
         public static final int REAR_INTAKE_LIFT_MOTOR_ID = 14;
-        public static final double REAR_INTAKE_LIFT_SPEED = 0.15;
-        public static final double REAR_INTAKE_EXTEND_SPEED = -0.15;
-        public static final double REAR_INTAKE_LIFT_STORED_POSITION = 0.5; //Tune during testing
-        public static final double REAR_INTAKE_LIFT_LIFTED_POSITION = -1.5; //Tune during testing
+        public static final double REAR_INTAKE_LIFT_SPEED = 0.10;
+        public static final double REAR_INTAKE_EXTEND_SPEED = -0.10;
+        public static final double REAR_INTAKE_LIFT_STORED_POSITION = -0.5; //Tune during testing
+        public static final double REAR_INTAKE_LIFT_LIFTED_POSITION = -1.3; //Tune during testing
         public static final double REAR_INTAKE_LIFT_EXTEND_POSITION = 2.0; //Tune during testing
     //Agitator
         public static final int AGITATOR_MOTOR_ID = 16;
