@@ -124,7 +124,7 @@ public class RobotContainer {
     autoChooser = new SendableChooser<>();
     // Populate autonomous chooser (default safe/no-op + Auto Center Launch Climb)
     autoChooser.setDefaultOption("DoNothing", new InstantCommand());
-    autoChooser.addOption("AutoRotateLaunch", new AutoRotateLaunch(swerveSubsystem, superSystem));
+    autoChooser.addOption("AutoRotateLaunch", new AutoRotateLaunch(swerveSubsystem, superSystem, hopper, rearIntake, rearIntakeLift));
     SmartDashboard.putData("AutoChooser", autoChooser);
 
 

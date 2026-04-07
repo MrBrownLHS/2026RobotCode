@@ -22,7 +22,7 @@ public class ShuffleCommand extends Command {
 
   private Phase currentPhase = Phase.EXTENDING;
 
-  private static final double PAUSE_SECONDS = 0.10;
+  private static final double PAUSE_SECONDS = 0.3;
 
   public ShuffleCommand(Hopper hopper, RearIntake rearIntake, RearIntakeLift rearIntakeLift) {
     this.hopper = hopper;

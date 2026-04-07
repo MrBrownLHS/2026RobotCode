@@ -35,6 +35,8 @@ public class Hopper extends SubsystemBase {
     private final double positionTolerance = 0.5;
     private final double extendSpeed = Constants.FuelSystemConstants.HOPPER_EXTEND_SPEED;
     private final double retractSpeed = Constants.FuelSystemConstants.HOPPER_RETRACT_SPEED;
+    private final double shuffleSpeedIn = 0.05;
+    private final double shuffleSpeedOut = 0.05;
 
     private double currentTarget = 0.0;
 
@@ -171,8 +173,8 @@ public class Hopper extends SubsystemBase {
                 currentTarget = shufflePosition;
                 output = moveTowardTarget(
                     currentTarget,
-                    extendSpeed,
-                    retractSpeed
+                    shuffleSpeedOut,
+                    shuffleSpeedIn
                 );
                 break;
         }
